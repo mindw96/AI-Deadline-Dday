@@ -1,0 +1,25 @@
+[
+  {
+    "id": "testconf-2026",
+    "name": "TestConf",
+    "fullName": "Test Conference",
+    "year": 2026,
+    "field": ["testing"],
+    "location": "Online",
+    "websiteUrl": "https://example.com/testconf",
+    "sourceUrl": "https://example.com/testconf/cfp",
+    "sourceCheckedAt": "2026-05-27",
+    "timezone": "AoE",
+    "deadlines": [
+      {
+        "id": "full-paper",
+        "label": "Full Paper Submission",
+        "date": "2026-06-01",
+        "time": "23:59",
+        "timezone": "AoE",
+        "type": "submission",
+        "isPrimary": true
+      }
+    ]
+  }
+]
