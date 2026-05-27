@@ -231,7 +231,7 @@ enum DdayCoreChecks {
         let url = root.appendingPathComponent("data/conferences.json")
         let store = try ConferenceStore.load(from: url)
 
-        try expect(store.conferences.count >= 9, "expected at least nine seed conferences")
+        try expect(store.conferences.count >= 29, "expected at least 29 seed conferences")
         try expect(
             store.conferences.allSatisfy { !$0.deadlines.isEmpty },
             "each conference must have at least one deadline"
@@ -247,6 +247,30 @@ enum DdayCoreChecks {
         try expect(
             store.conferences.contains { $0.id == "neurips-2026" && $0.subcategory == .ml },
             "expected NeurIPS 2026 in ML subcategory"
+        )
+        try expect(
+            store.conferences.contains { $0.id == "kdd-2026" && $0.subcategory == .ml },
+            "expected KDD 2026 in ML subcategory"
+        )
+        try expect(
+            store.conferences.contains { $0.id == "accv-2026" && $0.subcategory == .cv },
+            "expected ACCV 2026 in CV subcategory"
+        )
+        try expect(
+            store.conferences.contains { $0.id == "colm-2026" && $0.subcategory == .nlp },
+            "expected COLM 2026 in NLP subcategory"
+        )
+        try expect(
+            store.conferences.contains { $0.id == "sigir-2026" && $0.subcategory == .nlp },
+            "expected SIGIR 2026 in NLP subcategory"
+        )
+        try expect(
+            store.conferences.contains { $0.id == "ijcai-ecai-2026" && $0.subcategory == .generalAI },
+            "expected IJCAI-ECAI 2026 in General AI subcategory"
+        )
+        try expect(
+            store.conferences.contains { $0.id == "kr-2026" && $0.subcategory == .generalAI },
+            "expected KR 2026 in General AI subcategory"
         )
     }
 
