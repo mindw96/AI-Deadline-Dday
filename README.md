@@ -50,6 +50,20 @@ The script creates:
 build/Dday.app
 ```
 
+## Release
+
+Releases are automated with GitHub Actions. Create and push a version tag to build
+`Dday.app`, package it as a zip, and publish a GitHub Release:
+
+```bash
+git tag v0.1.1
+git push origin v0.1.1
+```
+
+The release workflow also uploads a SHA-256 checksum file. If a tag already
+exists, run the `Release` workflow manually from GitHub Actions and enter that
+tag name.
+
 ## Data
 
 The app currently ships with a small seed dataset in:

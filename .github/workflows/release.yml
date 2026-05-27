@@ -1,0 +1,68 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing tag to release, for example v0.1.1"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and publish release
+    runs-on: macos-latest
+
+    steps:
+      - name: Resolve release tag
+        id: release_tag
+        env:
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "tag=${INPUT_TAG}" >> "$GITHUB_OUTPUT"
+          else
+            echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.release_tag.outputs.tag }}
+
+      - name: Show Swift version
+        run: swift --version
+
+      - name: Run core checks
+        run: swift run DdayCoreChecks
+
+      - name: Build app bundle
+        run: ./scripts/build_app.sh
+
+      - name: Package app
+        env:
+          RELEASE_TAG: ${{ steps.release_tag.outputs.tag }}
+        run: |
+          tag="${RELEASE_TAG}"
+          mkdir -p dist
+          ditto -c -k --keepParent build/Dday.app "dist/Dday-${tag}.zip"
+          shasum -a 256 "dist/Dday-${tag}.zip" > "dist/Dday-${tag}.zip.sha256"
+
+      - name: Publish GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release_tag.outputs.tag }}
+        run: |
+          tag="${RELEASE_TAG}"
+          gh release create "$tag" \
+            "dist/Dday-${tag}.zip" \
+            "dist/Dday-${tag}.zip.sha256" \
+            --title "Dday ${tag}" \
+            --generate-notes \
+            --verify-tag
