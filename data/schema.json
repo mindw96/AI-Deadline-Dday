@@ -11,6 +11,7 @@
       "fullName",
       "year",
       "field",
+      "subcategory",
       "location",
       "websiteUrl",
       "sourceUrl",
@@ -27,6 +28,10 @@
         "type": "array",
         "items": { "type": "string", "minLength": 1 },
         "minItems": 1
+      },
+      "subcategory": {
+        "type": "string",
+        "enum": ["ml", "cv", "nlp", "general-ai"]
       },
       "location": { "type": "string", "minLength": 1 },
       "websiteUrl": { "type": "string", "format": "uri" },

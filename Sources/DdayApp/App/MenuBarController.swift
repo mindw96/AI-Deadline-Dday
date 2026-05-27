@@ -187,8 +187,8 @@ final class MenuBarController: NSObject {
         menu.addItem(.separator())
 
         let conferenceGroups = groupedConferences()
-        for conference in conferenceGroups.current {
-            menu.addItem(conferenceMenuItem(conference: conference, selected: selected))
+        for item in conferenceCategoryMenuItems(conferences: conferenceGroups.current, selected: selected) {
+            menu.addItem(item)
         }
 
         if !conferenceGroups.past.isEmpty {
@@ -340,12 +340,35 @@ final class MenuBarController: NSObject {
         let item = NSMenuItem(title: text.pastConferences, action: nil, keyEquivalent: "")
         let submenu = NSMenu()
 
-        for conference in conferences {
-            submenu.addItem(conferenceMenuItem(conference: conference, selected: selected))
+        for item in conferenceCategoryMenuItems(conferences: conferences, selected: selected) {
+            submenu.addItem(item)
         }
 
         item.submenu = submenu
         return item
+    }
+
+    private func conferenceCategoryMenuItems(
+        conferences: [Conference],
+        selected: SelectedDeadline
+    ) -> [NSMenuItem] {
+        let grouped = Dictionary(grouping: conferences, by: \.subcategory)
+
+        return ConferenceSubcategory.menuOrder.compactMap { subcategory in
+            guard let conferences = grouped[subcategory], !conferences.isEmpty else {
+                return nil
+            }
+
+            let item = NSMenuItem(title: title(for: subcategory), action: nil, keyEquivalent: "")
+            let submenu = NSMenu()
+
+            for conference in conferences.sortedForMenu() {
+                submenu.addItem(conferenceMenuItem(conference: conference, selected: selected))
+            }
+
+            item.submenu = submenu
+            return item
+        }
     }
 
     private func emptyMenu() -> NSMenu {
@@ -469,6 +492,19 @@ final class MenuBarController: NSObject {
             return "English"
         case .korean:
             return "한국어"
+        }
+    }
+
+    private func title(for subcategory: ConferenceSubcategory) -> String {
+        switch subcategory {
+        case .ml:
+            return text.machineLearning
+        case .cv:
+            return text.computerVision
+        case .nlp:
+            return text.naturalLanguageProcessing
+        case .generalAI:
+            return text.generalAI
         }
     }
 
@@ -703,6 +739,22 @@ private final class DeadlineMenuSelection: NSObject {
     }
 }
 
+private extension ConferenceSubcategory {
+    static let menuOrder: [ConferenceSubcategory] = [.ml, .cv, .nlp, .generalAI]
+}
+
+private extension Array where Element == Conference {
+    func sortedForMenu() -> [Conference] {
+        sorted {
+            if $0.year == $1.year {
+                return $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending
+            }
+
+            return $0.year < $1.year
+        }
+    }
+}
+
 private final class MenuInfoRow: NSView {
     private let horizontalPadding: CGFloat = 14
     private let rowHeight: CGFloat = 22
@@ -897,6 +949,22 @@ private struct MenuText {
 
     var pastConferences: String {
         usesKorean ? "지난 학회" : "Past Conferences"
+    }
+
+    var machineLearning: String {
+        "ML"
+    }
+
+    var computerVision: String {
+        usesKorean ? "CV (컴퓨터 비전)" : "CV (Computer Vision)"
+    }
+
+    var naturalLanguageProcessing: String {
+        "NLP"
+    }
+
+    var generalAI: String {
+        usesKorean ? "General AI" : "General AI"
     }
 
     var couldNotStart: String {

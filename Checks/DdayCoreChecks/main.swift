@@ -188,6 +188,7 @@ enum DdayCoreChecks {
 
         try expect(store.conferences.count == 1, "expected one fixture conference")
         try expect(store.conferences.first?.id == "testconf-2026", "unexpected conference id")
+        try expect(store.conferences.first?.subcategory == .ml, "unexpected fixture subcategory")
         try expect(store.conferences.first?.primaryDeadline?.id == "full-paper", "unexpected primary deadline")
     }
 
@@ -230,10 +231,22 @@ enum DdayCoreChecks {
         let url = root.appendingPathComponent("data/conferences.json")
         let store = try ConferenceStore.load(from: url)
 
-        try expect(store.conferences.count >= 5, "expected at least five seed conferences")
+        try expect(store.conferences.count >= 9, "expected at least nine seed conferences")
         try expect(
             store.conferences.allSatisfy { !$0.deadlines.isEmpty },
             "each conference must have at least one deadline"
+        )
+        try expect(
+            store.conferences.contains { $0.id == "eccv-2026" && $0.subcategory == .cv },
+            "expected ECCV 2026 in CV subcategory"
+        )
+        try expect(
+            store.conferences.contains { $0.id == "emnlp-2026" && $0.subcategory == .nlp },
+            "expected EMNLP 2026 in NLP subcategory"
+        )
+        try expect(
+            store.conferences.contains { $0.id == "neurips-2026" && $0.subcategory == .ml },
+            "expected NeurIPS 2026 in ML subcategory"
         )
     }
 

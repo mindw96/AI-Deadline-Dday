@@ -6,6 +6,7 @@ public struct Conference: Codable, Equatable, Identifiable {
     public let fullName: String
     public let year: Int
     public let field: [String]
+    public let subcategory: ConferenceSubcategory
     public let location: String
     public let websiteUrl: URL
     public let sourceUrl: URL
@@ -19,6 +20,7 @@ public struct Conference: Codable, Equatable, Identifiable {
         fullName: String,
         year: Int,
         field: [String],
+        subcategory: ConferenceSubcategory,
         location: String,
         websiteUrl: URL,
         sourceUrl: URL,
@@ -31,6 +33,7 @@ public struct Conference: Codable, Equatable, Identifiable {
         self.fullName = fullName
         self.year = year
         self.field = field
+        self.subcategory = subcategory
         self.location = location
         self.websiteUrl = websiteUrl
         self.sourceUrl = sourceUrl
@@ -38,6 +41,13 @@ public struct Conference: Codable, Equatable, Identifiable {
         self.timezone = timezone
         self.deadlines = deadlines
     }
+}
+
+public enum ConferenceSubcategory: String, Codable, Equatable, CaseIterable, Sendable {
+    case ml
+    case cv
+    case nlp
+    case generalAI = "general-ai"
 }
 
 public extension Conference {

@@ -5,6 +5,7 @@
     "fullName": "Test Conference",
     "year": 2026,
     "field": ["testing"],
+    "subcategory": "ml",
     "location": "Online",
     "websiteUrl": "https://example.com/testconf",
     "sourceUrl": "https://example.com/testconf/cfp",
