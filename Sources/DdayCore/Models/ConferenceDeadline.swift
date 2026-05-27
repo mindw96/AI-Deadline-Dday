@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ConferenceDeadline: Codable, Equatable, Identifiable {
+public struct ConferenceDeadline: Codable, Equatable, Identifiable, Sendable {
     public let id: String
     public let label: String
     public let date: String
@@ -28,7 +28,7 @@ public struct ConferenceDeadline: Codable, Equatable, Identifiable {
     }
 }
 
-public enum DeadlineKind: String, Codable, Equatable {
+public enum DeadlineKind: String, Codable, Equatable, Sendable {
     case abstract
     case submission
     case supplementary

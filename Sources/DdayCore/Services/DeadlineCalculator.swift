@@ -1,6 +1,6 @@
 import Foundation
 
-public struct DeadlineDisplay: Equatable {
+public struct DeadlineDisplay: Equatable, Sendable {
     public let text: String
     public let days: Int
     public let remainingSeconds: TimeInterval
@@ -19,12 +19,12 @@ public struct DeadlineDisplay: Equatable {
     }
 }
 
-public enum DeadlineCalculationError: Error, Equatable {
+public enum DeadlineCalculationError: Error, Equatable, Sendable {
     case invalidDate(String)
     case invalidTime(String)
 }
 
-public struct DeadlineCalculator {
+public struct DeadlineCalculator: Sendable {
     public init() {}
 
     public func display(

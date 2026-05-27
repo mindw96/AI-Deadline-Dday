@@ -1,6 +1,6 @@
 import Foundation
 
-public struct UserDeadline: Codable, Equatable, Identifiable {
+public struct UserDeadline: Codable, Equatable, Identifiable, Sendable {
     public let id: String
     public let name: String
     public let label: String

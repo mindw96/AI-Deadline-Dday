@@ -1,6 +1,6 @@
 import Foundation
 
-public struct DeadlineSelection: Codable, Equatable {
+public struct DeadlineSelection: Codable, Equatable, Sendable {
     public let conferenceID: String
     public let deadlineID: String
 

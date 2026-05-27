@@ -1,6 +1,6 @@
 import Foundation
 
-public struct ConferenceStore {
+public struct ConferenceStore: Sendable {
     public let conferences: [Conference]
 
     public init(conferences: [Conference]) {
