@@ -11,6 +11,8 @@ enum DdayCoreChecks {
         try checkAoEMapsToUTCMinusTwelve()
         try checkAoEDeadlineUsesLocalDisplayTimezone()
         try checkLoadsConferenceJSON()
+        try checkLoadsConferenceJSONFromData()
+        try checkConferenceDataUpdaterFallsBackWhenCacheIsInvalid()
         try checkLoadsProjectConferenceData()
 
         print("DdayCoreChecks passed")
@@ -187,6 +189,40 @@ enum DdayCoreChecks {
         try expect(store.conferences.count == 1, "expected one fixture conference")
         try expect(store.conferences.first?.id == "testconf-2026", "unexpected conference id")
         try expect(store.conferences.first?.primaryDeadline?.id == "full-paper", "unexpected primary deadline")
+    }
+
+    private static func checkLoadsConferenceJSONFromData() throws {
+        let url = try require(Bundle.module.url(forResource: "conferences-fixture", withExtension: "json"))
+        let data = try Data(contentsOf: url)
+        let store = try ConferenceStore.load(from: data)
+
+        try expect(store.conferences.count == 1, "expected one fixture conference from data")
+        try expect(store.conferences.first?.id == "testconf-2026", "unexpected conference id from data")
+    }
+
+    private static func checkConferenceDataUpdaterFallsBackWhenCacheIsInvalid() throws {
+        let fileManager = FileManager.default
+        let fixtureURL = try require(Bundle.module.url(forResource: "conferences-fixture", withExtension: "json"))
+        let temporaryDirectory = fileManager.temporaryDirectory
+            .appendingPathComponent("DdayCoreChecks-\(UUID().uuidString)", isDirectory: true)
+        let cacheURL = temporaryDirectory.appendingPathComponent("conferences.json")
+
+        try fileManager.createDirectory(at: temporaryDirectory, withIntermediateDirectories: true)
+        defer {
+            try? fileManager.removeItem(at: temporaryDirectory)
+        }
+
+        try Data("not json".utf8).write(to: cacheURL)
+
+        let updater = ConferenceDataUpdater(
+            remoteURL: URL(string: "https://example.invalid/conferences.json")!,
+            cacheURL: cacheURL,
+            fileManager: fileManager
+        )
+        let store = try updater.loadPreferred(bundledURL: fixtureURL)
+
+        try expect(store.conferences.count == 1, "expected bundled data after invalid cache")
+        try expect(!fileManager.fileExists(atPath: cacheURL.path), "invalid cache should be removed")
     }
 
     private static func checkLoadsProjectConferenceData() throws {

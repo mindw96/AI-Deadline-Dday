@@ -9,6 +9,10 @@ public struct ConferenceStore {
 
     public static func load(from url: URL) throws -> ConferenceStore {
         let data = try Data(contentsOf: url)
+        return try load(from: data)
+    }
+
+    public static func load(from data: Data) throws -> ConferenceStore {
         let decoder = JSONDecoder()
         let conferences = try decoder.decode([Conference].self, from: data)
         return ConferenceStore(conferences: conferences.sorted())

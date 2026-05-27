@@ -7,13 +7,15 @@ private let userDeadlineConferenceID = "__user_deadline__"
 @MainActor
 final class MenuBarController: NSObject {
     private let statusItem: NSStatusItem
-    private let store: ConferenceStore
+    private var store: ConferenceStore
     private let calculator: DeadlineCalculator
     private let settings: SettingsStore
     private let userDeadlineStore: UserDeadlineStore
+    private let conferenceDataUpdater: ConferenceDataUpdater
     private let badgeRenderer = StatusBadgeRenderer()
     private var refreshTimer: Timer?
     private var lastSelectedWebsiteURL: URL?
+    private var isUpdatingConferences = false
 
     private var text: MenuText {
         MenuText(language: settings.appLanguage)
@@ -23,13 +25,15 @@ final class MenuBarController: NSObject {
         store: ConferenceStore,
         calculator: DeadlineCalculator,
         settings: SettingsStore,
-        userDeadlineStore: UserDeadlineStore
+        userDeadlineStore: UserDeadlineStore,
+        conferenceDataUpdater: ConferenceDataUpdater = ConferenceDataUpdater()
     ) {
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         self.store = store
         self.calculator = calculator
         self.settings = settings
         self.userDeadlineStore = userDeadlineStore
+        self.conferenceDataUpdater = conferenceDataUpdater
 
         super.init()
 
@@ -43,7 +47,8 @@ final class MenuBarController: NSObject {
             store: ConferenceStore(conferences: []),
             calculator: DeadlineCalculator(),
             settings: SettingsStore(),
-            userDeadlineStore: UserDeadlineStore()
+            userDeadlineStore: UserDeadlineStore(),
+            conferenceDataUpdater: ConferenceDataUpdater()
         )
         controller.statusItem.button?.title = "Dday Error"
         controller.statusItem.menu = controller.errorMenu(error: error)
@@ -225,6 +230,8 @@ final class MenuBarController: NSObject {
             menu.addItem(websiteItem)
         }
 
+        menu.addItem(conferenceUpdateMenuItem())
+
         let refreshItem = NSMenuItem(title: text.refresh, action: #selector(refreshFromMenu), keyEquivalent: "r")
         refreshItem.target = self
         menu.addItem(refreshItem)
@@ -324,6 +331,8 @@ final class MenuBarController: NSObject {
         let menu = NSMenu()
         menu.addItem(infoItem(text.noConferences))
         menu.addItem(.separator())
+        menu.addItem(conferenceUpdateMenuItem())
+        menu.addItem(.separator())
         let quitItem = NSMenuItem(title: text.quit, action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)
@@ -417,6 +426,14 @@ final class MenuBarController: NSObject {
         let item = NSMenuItem()
         item.isEnabled = false
         item.view = MenuInfoRow(title: title, emphasis: emphasis)
+        return item
+    }
+
+    private func conferenceUpdateMenuItem() -> NSMenuItem {
+        let title = isUpdatingConferences ? text.checkingConferenceUpdates : text.checkConferenceUpdates
+        let item = NSMenuItem(title: title, action: #selector(checkConferenceListUpdates), keyEquivalent: "u")
+        item.target = self
+        item.isEnabled = !isUpdatingConferences
         return item
     }
 
@@ -543,8 +560,47 @@ final class MenuBarController: NSObject {
         alert.runModal()
     }
 
+    private func showInfo(message: String) {
+        let alert = NSAlert()
+        alert.messageText = message
+        alert.alertStyle = .informational
+        alert.addButton(withTitle: "OK")
+        NSApp.activate(ignoringOtherApps: true)
+        alert.runModal()
+    }
+
     @objc private func refreshFromMenu() {
         refresh()
+    }
+
+    @objc private func checkConferenceListUpdates() {
+        guard !isUpdatingConferences else {
+            return
+        }
+
+        isUpdatingConferences = true
+        refresh()
+
+        Task { @MainActor in
+            do {
+                let updatedStore = try await conferenceDataUpdater.fetchAndCacheLatest()
+                store = updatedStore
+
+                if let selectedDeadline = settings.selectedDeadline,
+                   selectedDeadline.conferenceID != userDeadlineConferenceID,
+                   updatedStore.deadline(selection: selectedDeadline) == nil {
+                    settings.selectedDeadline = nil
+                }
+
+                isUpdatingConferences = false
+                refresh()
+                showInfo(message: text.conferenceUpdatesSucceeded(count: updatedStore.conferences.count))
+            } catch {
+                isUpdatingConferences = false
+                refresh()
+                showError(message: text.conferenceUpdatesFailed(error.localizedDescription))
+            }
+        }
     }
 
     @objc private func openConferenceWebsite() {
@@ -739,6 +795,26 @@ private struct MenuText {
 
     var openConferenceWebsite: String {
         usesKorean ? "학회 홈페이지 열기" : "Open Conference Website"
+    }
+
+    var checkConferenceUpdates: String {
+        usesKorean ? "학회 목록 업데이트 확인" : "Check Conference List Updates"
+    }
+
+    var checkingConferenceUpdates: String {
+        usesKorean ? "학회 목록 업데이트 확인 중..." : "Checking Conference List Updates..."
+    }
+
+    func conferenceUpdatesSucceeded(count: Int) -> String {
+        usesKorean
+            ? "학회 목록을 업데이트했습니다. 현재 \(count)개 학회가 들어 있습니다."
+            : "Conference list updated. \(count) conferences are now available."
+    }
+
+    func conferenceUpdatesFailed(_ reason: String) -> String {
+        usesKorean
+            ? "학회 목록을 업데이트하지 못했습니다.\n\(reason)"
+            : "Could not update the conference list.\n\(reason)"
     }
 
     var refresh: String {

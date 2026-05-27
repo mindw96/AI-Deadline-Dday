@@ -14,12 +14,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
                 throw AppError.missingBundledData
             }
 
-            let store = try ConferenceStore.load(from: dataURL)
+            let conferenceDataUpdater = ConferenceDataUpdater()
+            let store = try conferenceDataUpdater.loadPreferred(bundledURL: dataURL)
             menuBarController = MenuBarController(
                 store: store,
                 calculator: DeadlineCalculator(),
                 settings: SettingsStore(),
-                userDeadlineStore: UserDeadlineStore()
+                userDeadlineStore: UserDeadlineStore(),
+                conferenceDataUpdater: conferenceDataUpdater
             )
         } catch {
             menuBarController = MenuBarController.fallback(error: error)

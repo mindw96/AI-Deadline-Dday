@@ -74,8 +74,11 @@ Open the menu bar item and use:
 - `Visual Style` to switch between plain text and a light rounded badge.
 - `Language` to use the system language, English, or Korean.
 - `Add Custom D-Day...` to add a deadline that is not in the built-in conference list.
+- `Check Conference List Updates` to manually fetch the latest conference list from GitHub.
 
 The D-Day count is calculated in the user's local timezone. The menu shows both the source deadline, such as `2026-07-28 23:59 AoE`, and the converted local time.
+
+When an update succeeds, the downloaded conference list is cached locally in Application Support and used on the next launch. If the update fails, the app keeps using the last cached list or the bundled list.
 
 ## Privacy
 
