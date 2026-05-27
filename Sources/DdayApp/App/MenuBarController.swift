@@ -186,27 +186,13 @@ final class MenuBarController: NSObject {
         menu.addItem(languageMenu())
         menu.addItem(.separator())
 
-        for conference in store.conferences {
-            let item = NSMenuItem(title: "\(conference.name) \(conference.year)", action: nil, keyEquivalent: "")
-            let submenu = NSMenu()
+        let conferenceGroups = groupedConferences()
+        for conference in conferenceGroups.current {
+            menu.addItem(conferenceMenuItem(conference: conference, selected: selected))
+        }
 
-            for deadline in conference.deadlines {
-                let deadlineItem = NSMenuItem(
-                    title: deadlineMenuTitle(conference: conference, deadline: deadline),
-                    action: #selector(selectDeadline(_:)),
-                    keyEquivalent: ""
-                )
-                deadlineItem.target = self
-                deadlineItem.representedObject = DeadlineMenuSelection(
-                    conferenceID: conference.id,
-                    deadlineID: deadline.id
-                )
-                deadlineItem.state = selected.conferenceID == conference.id && selected.deadline.id == deadline.id ? .on : .off
-                submenu.addItem(deadlineItem)
-            }
-
-            item.submenu = submenu
-            menu.addItem(item)
+        if !conferenceGroups.past.isEmpty {
+            menu.addItem(pastConferencesMenu(conferences: conferenceGroups.past, selected: selected))
         }
 
         menu.addItem(.separator())
@@ -327,6 +313,41 @@ final class MenuBarController: NSObject {
         return item
     }
 
+    private func conferenceMenuItem(conference: Conference, selected: SelectedDeadline) -> NSMenuItem {
+        let item = NSMenuItem(title: "\(conference.name) \(conference.year)", action: nil, keyEquivalent: "")
+        let submenu = NSMenu()
+
+        for deadline in conference.deadlines {
+            let deadlineItem = NSMenuItem(
+                title: deadlineMenuTitle(conference: conference, deadline: deadline),
+                action: #selector(selectDeadline(_:)),
+                keyEquivalent: ""
+            )
+            deadlineItem.target = self
+            deadlineItem.representedObject = DeadlineMenuSelection(
+                conferenceID: conference.id,
+                deadlineID: deadline.id
+            )
+            deadlineItem.state = selected.conferenceID == conference.id && selected.deadline.id == deadline.id ? .on : .off
+            submenu.addItem(deadlineItem)
+        }
+
+        item.submenu = submenu
+        return item
+    }
+
+    private func pastConferencesMenu(conferences: [Conference], selected: SelectedDeadline) -> NSMenuItem {
+        let item = NSMenuItem(title: text.pastConferences, action: nil, keyEquivalent: "")
+        let submenu = NSMenu()
+
+        for conference in conferences {
+            submenu.addItem(conferenceMenuItem(conference: conference, selected: selected))
+        }
+
+        item.submenu = submenu
+        return item
+    }
+
     private func emptyMenu() -> NSMenu {
         let menu = NSMenu()
         menu.addItem(infoItem(text.noConferences))
@@ -361,6 +382,35 @@ final class MenuBarController: NSObject {
     private func userDeadlineMenuTitle(_ userDeadline: UserDeadline) -> String {
         let dday = (try? calculator.display(for: userDeadline.deadline).text) ?? "?"
         return "\(userDeadline.name) - \(dday)"
+    }
+
+    private func groupedConferences(now: Date = Date()) -> (current: [Conference], past: [Conference]) {
+        var current: [Conference] = []
+        var past: [Conference] = []
+
+        for conference in store.conferences {
+            if isPastConference(conference, now: now) {
+                past.append(conference)
+            } else {
+                current.append(conference)
+            }
+        }
+
+        return (current, past)
+    }
+
+    private func isPastConference(_ conference: Conference, now: Date) -> Bool {
+        guard !conference.deadlines.isEmpty else {
+            return false
+        }
+
+        return conference.deadlines.allSatisfy { deadline in
+            guard let date = try? calculator.date(for: deadline) else {
+                return false
+            }
+
+            return date < now
+        }
     }
 
     private func title(for mode: MenuBarDisplayMode) -> String {
@@ -843,6 +893,10 @@ private struct MenuText {
 
     var noConferences: String {
         usesKorean ? "학회 데이터가 없습니다" : "No conferences available"
+    }
+
+    var pastConferences: String {
+        usesKorean ? "지난 학회" : "Past Conferences"
     }
 
     var couldNotStart: String {

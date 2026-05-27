@@ -77,6 +77,7 @@ Open the menu bar item and use:
 - `Check Conference List Updates` to manually fetch the latest conference list from GitHub.
 
 The D-Day count is calculated in the user's local timezone. The menu shows both the source deadline, such as `2026-07-28 23:59 AoE`, and the converted local time.
+Conferences whose deadlines have all passed remain selectable from `Past Conferences`, but are hidden from the main conference list.
 
 When an update succeeds, the downloaded conference list is cached locally in Application Support and used on the next launch. If the update fails, the app keeps using the last cached list or the bundled list.
 
