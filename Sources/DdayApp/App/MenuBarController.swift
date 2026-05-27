@@ -758,19 +758,21 @@ private extension Array where Element == Conference {
 private final class MenuInfoRow: NSView {
     private let horizontalPadding: CGFloat = 14
     private let rowHeight: CGFloat = 22
+    private let emphasis: Bool
+    private let label: NSTextField
 
     init(title: String, emphasis: Bool) {
+        self.emphasis = emphasis
         let font = emphasis
             ? NSFont.systemFont(ofSize: NSFont.systemFontSize, weight: .semibold)
             : NSFont.systemFont(ofSize: NSFont.systemFontSize)
         let textSize = title.size(withAttributes: [.font: font])
         let width = max(240, ceil(textSize.width) + horizontalPadding * 2)
+        self.label = NSTextField(labelWithString: title)
 
         super.init(frame: NSRect(x: 0, y: 0, width: width, height: rowHeight))
 
-        let label = NSTextField(labelWithString: title)
         label.font = font
-        label.textColor = emphasis ? .labelColor : NSColor.labelColor.withAlphaComponent(0.88)
         label.lineBreakMode = .byTruncatingTail
         label.frame = NSRect(
             x: horizontalPadding,
@@ -779,6 +781,30 @@ private final class MenuInfoRow: NSView {
             height: rowHeight - 4
         )
         addSubview(label)
+        updateTextColor()
+    }
+
+    override func viewDidChangeEffectiveAppearance() {
+        super.viewDidChangeEffectiveAppearance()
+        updateTextColor()
+    }
+
+    override func viewDidMoveToWindow() {
+        super.viewDidMoveToWindow()
+        updateTextColor()
+    }
+
+    private func updateTextColor() {
+        let isDark = effectiveAppearance.bestMatch(from: [.darkAqua, .aqua]) == .darkAqua
+        if isDark {
+            label.textColor = emphasis
+                ? NSColor(calibratedWhite: 0.96, alpha: 1)
+                : NSColor(calibratedWhite: 0.86, alpha: 1)
+        } else {
+            label.textColor = emphasis
+                ? .labelColor
+                : NSColor.labelColor.withAlphaComponent(0.88)
+        }
     }
 
     @available(*, unavailable)
