@@ -64,9 +64,9 @@ git tag v0.1.1
 git push origin v0.1.1
 ```
 
-The release workflow also uploads a SHA-256 checksum file. If a tag already
-exists, run the `Release` workflow manually from GitHub Actions and enter that
-tag name.
+The release workflow uploads both a zip archive and a DMG, plus SHA-256 checksum
+files. Mac users should usually download the DMG. If a tag already exists, run
+the `Release` workflow manually from GitHub Actions and enter that tag name.
 
 ## Data
 
