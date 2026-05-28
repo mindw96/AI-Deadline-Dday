@@ -68,6 +68,21 @@ The release workflow uploads both a zip archive and a DMG, plus SHA-256 checksum
 files. Mac users should usually download the DMG. If a tag already exists, run
 the `Release` workflow manually from GitHub Actions and enter that tag name.
 
+## Install
+
+Download the latest DMG from the GitHub Releases page, open it, and run
+`Dday.app`.
+
+This app is not notarized because it is distributed without an Apple Developer
+Program account. On first launch, macOS may block the app with an unidentified
+developer or damaged-app warning. If that happens, move `Dday.app` to
+`/Applications` and run:
+
+```bash
+xattr -dr com.apple.quarantine /Applications/Dday.app
+open /Applications/Dday.app
+```
+
 ## Data
 
 The app currently ships with a small seed dataset in:

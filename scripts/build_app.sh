@@ -15,5 +15,6 @@ cp "$ROOT/Support/Info.plist" "$APP_DIR/Contents/Info.plist"
 cp "$ROOT/Support/AppIcon.icns" "$APP_DIR/Contents/Resources/AppIcon.icns"
 cp "$ROOT/Sources/DdayApp/Resources/conferences.json" "$APP_DIR/Contents/Resources/conferences.json"
 chmod +x "$APP_DIR/Contents/MacOS/Dday"
+codesign --force --deep --sign - "$APP_DIR"
 
 echo "Built $APP_DIR"
