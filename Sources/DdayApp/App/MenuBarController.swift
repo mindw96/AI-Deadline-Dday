@@ -978,11 +978,11 @@ private struct MenuText {
     }
 
     var machineLearning: String {
-        "ML"
+        "Machine Learning"
     }
 
     var computerVision: String {
-        usesKorean ? "CV (컴퓨터 비전)" : "CV (Computer Vision)"
+        "Computer Vision"
     }
 
     var naturalLanguageProcessing: String {

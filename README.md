@@ -87,7 +87,7 @@ Open the menu bar item and use:
 - `Menu Bar Display` to choose whether the conference name is shown.
 - `Visual Style` to switch between plain text and a light rounded badge.
 - `Language` to use the system language, English, or Korean.
-- `ML`, `CV (Computer Vision)`, `NLP`, and `General AI` to browse conferences by subcategory.
+- `Machine Learning`, `Computer Vision`, `NLP`, and `General AI` to browse conferences by subcategory.
 - `Add Custom D-Day...` to add a deadline that is not in the built-in conference list.
 - `Check Conference List Updates` to manually fetch the latest conference list from GitHub.
 
