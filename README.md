@@ -2,6 +2,10 @@
 
 `Dday` is a lightweight macOS menu bar app for tracking academic conference deadlines.
 
+<p align="center">
+  <img src="docs/assets/menubar-preview.png" alt="Dday menu bar badge showing AAAI D-62" width="320">
+</p>
+
 The first version is focused on one simple workflow:
 
 1. Load a curated conference deadline list from local JSON.
