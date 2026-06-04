@@ -311,7 +311,17 @@ macOS 전용 상태:
 
 ## 12. App Store 출시 준비
 
-Apple Developer Program 등록 후 필요한 항목:
+Apple Developer Program 등록 전에도 Simulator 기반 개발과 기능 검증은 가능합니다. 다만 TestFlight, App Store Connect 업로드, App Store 심사 제출은 Apple Developer Program 등록 후 진행합니다.
+
+등록 전 가능한 항목:
+
+- iPhone/iPad Simulator 실행
+- Widget Simulator 테스트
+- 로컬 알림 테스트
+- GitHub에 소스 코드 Push
+- 앱 이름, 아이콘, 스크린샷, 설명 초안 준비
+
+등록 후 필요한 항목:
 
 - Apple Developer 계정
 - Xcode 설치
@@ -326,7 +336,7 @@ Apple Developer Program 등록 후 필요한 항목:
 
 ```text
 dev.mindw.DdayMobile
-dev.mindw.DdayMobile.WidgetExtension
+dev.mindw.DdayMobile.DdayWidgets
 group.dev.mindw.Dday
 ```
 
@@ -427,7 +437,18 @@ App Store 메타데이터 초안:
 
 ### Phase 5. TestFlight
 
+등록 전 준비:
+
+- TestFlight 준비 문서 작성
+- Bundle ID와 App Group 확인
+- Archive 스크립트 준비
+- Simulator에서 iPhone/iPad/Widget/알림 기능 검증
+
+등록 후 실행:
+
 - App Store Connect 앱 레코드 생성
+- Xcode Signing & Capabilities에서 Team 설정
+- App Group을 App target과 Widget target에 연결
 - Archive
 - Upload
 - Internal testing
