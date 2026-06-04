@@ -339,7 +339,7 @@ final class MobileAppModel: ObservableObject {
 
     private func notificationScheduleItems() -> [MobileNotificationScheduleItem] {
         var seenIDs = Set<String>()
-        let summaries = ([selectedSummary].compactMap { $0 } + customDeadlineSummaries)
+        let summaries = ([featuredSummary].compactMap { $0 } + customDeadlineSummaries)
             .filter { $0.display.remainingSeconds > 0 }
 
         return summaries.compactMap { summary in

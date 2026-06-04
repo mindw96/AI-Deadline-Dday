@@ -60,8 +60,8 @@ struct MobileAppText {
     var enableNotifications: String { korean ? "마감 알림 켜기" : "Enable deadline reminders" }
     var notificationDescription: String {
         korean
-            ? "메인 D-Day와 사용자 D-Day에 대해 7일 전, 3일 전, 1일 전, 당일 알림을 예약합니다."
-            : "Schedules reminders for your main D-Day and custom D-Days at 7 days, 3 days, 1 day, and deadline day."
+            ? "홈과 위젯에 보이는 메인 D-Day와 사용자 D-Day에 대해 7일 전, 3일 전, 1일 전, 당일 알림을 예약합니다."
+            : "Schedules reminders for the main D-Day shown on Home/widgets and custom D-Days at 7 days, 3 days, 1 day, and deadline day."
     }
     var notificationPermissionDenied: String {
         korean

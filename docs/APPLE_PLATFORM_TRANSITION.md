@@ -686,6 +686,7 @@ xcodebuild -project Apps/Mobile/DdayMobile.xcodeproj \
 - 사용자가 알림을 켤 때만 알림 권한 요청
 - 알림을 끄면 Dday가 예약한 pending notification만 제거
 - 메인 D-Day와 사용자 지정 D-Day를 대상으로 알림 예약
+- 명시적으로 선택한 D-Day가 없어도 Home/Widget에 보이는 자동 메인 D-Day를 알림 대상으로 사용
 - 같은 deadline이 메인 D-Day와 사용자 D-Day 목록에 중복될 때 중복 예약 방지
 - 알림 window 추가
   - 7일 전
