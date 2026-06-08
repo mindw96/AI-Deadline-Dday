@@ -21,6 +21,7 @@
 		A10000000000000000000035 /* CustomDeadlinesScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000034 /* CustomDeadlinesScreen.swift */; };
 		A10000000000000000000037 /* SettingsScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000036 /* SettingsScreen.swift */; };
 		A10000000000000000000039 /* MobileNotificationScheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000038 /* MobileNotificationScheduler.swift */; };
+		A1000000000000000000003B /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1000000000000000000003A /* Assets.xcassets */; };
 		A20000000000000000000001 /* MobileWidgetSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000011 /* MobileWidgetSnapshotStore.swift */; };
 		A20000000000000000000002 /* MobileWidgetSnapshotStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000011 /* MobileWidgetSnapshotStore.swift */; };
 		A20000000000000000000003 /* DdayWidgetsBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20000000000000000000012 /* DdayWidgetsBundle.swift */; };
@@ -67,6 +68,7 @@
 		A10000000000000000000034 /* CustomDeadlinesScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDeadlinesScreen.swift; sourceTree = "<group>"; };
 		A10000000000000000000036 /* SettingsScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsScreen.swift; sourceTree = "<group>"; };
 		A10000000000000000000038 /* MobileNotificationScheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileNotificationScheduler.swift; sourceTree = "<group>"; };
+		A1000000000000000000003A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		A20000000000000000000010 /* DdayWidgets.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = DdayWidgets.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A20000000000000000000011 /* MobileWidgetSnapshotStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MobileWidgetSnapshotStore.swift; sourceTree = "<group>"; };
 		A20000000000000000000012 /* DdayWidgetsBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DdayWidgetsBundle.swift; sourceTree = "<group>"; };
@@ -124,6 +126,7 @@
 				A10000000000000000000005 /* Models */,
 				A10000000000000000000006 /* Screens */,
 				A10000000000000000000007 /* Components */,
+				A1000000000000000000003A /* Assets.xcassets */,
 			);
 			path = DdayMobile;
 			sourceTree = "<group>";
@@ -283,6 +286,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A1000000000000000000003B /* Assets.xcassets in Resources */,
 				A10000000000000000000031 /* conferences.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -457,6 +461,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = DdayMobile/DdayMobile.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -491,6 +496,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_ENTITLEMENTS = DdayMobile/DdayMobile.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
