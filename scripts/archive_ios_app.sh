@@ -43,7 +43,7 @@ echo "Archive: $ARCHIVE_PATH"
 echo "Allow provisioning updates: $ALLOW_PROVISIONING_UPDATES"
 
 if [[ -n "${DEVELOPMENT_TEAM:-}" ]]; then
-  echo "Development team: $DEVELOPMENT_TEAM"
+  echo "Development team: configured"
 fi
 
 xcodebuild "${XCODEBUILD_ARGS[@]}"

@@ -91,11 +91,19 @@ Developer Program 등록과 Xcode signing 설정이 끝난 뒤에는 Xcode에서
 ./scripts/archive_ios_app.sh
 ```
 
+archive를 App Store Connect 업로드용 `.ipa`로 내보낼 때는 다음 스크립트를 사용합니다.
+
+```bash
+./scripts/export_ios_app_store.sh
+```
+
 Team ID를 명시해야 할 때는 다음처럼 실행합니다.
 
 ```bash
 DEVELOPMENT_TEAM=<YOUR_TEAM_ID> ./scripts/archive_ios_app.sh
 ```
+
+`<YOUR_TEAM_ID>`는 공개 저장소에 커밋하지 않습니다. Xcode가 `DdayMobile.xcodeproj/project.pbxproj`에 `DEVELOPMENT_TEAM = ...;` 값을 자동으로 넣을 수 있는데, 공개 저장소에서는 이 줄을 제거한 상태로 유지합니다.
 
 기본적으로 `-allowProvisioningUpdates`를 켜고 실행하므로, Xcode에 로그인된 Apple Developer 계정이 App ID와 provisioning profile을 자동으로 만들 수 있습니다.
 
