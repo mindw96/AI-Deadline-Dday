@@ -73,6 +73,8 @@ struct DeadlineWidget: Widget {
         .supportedFamilies([
             .systemSmall,
             .systemMedium,
+            .systemLarge,
+            .systemExtraLarge,
             .accessoryCircular,
             .accessoryRectangular,
             .accessoryInline
@@ -97,6 +99,20 @@ private struct DeadlineWidgetView: View {
         case .systemMedium:
             withWidgetBackground {
                 MediumDeadlineWidget(
+                    snapshot: entry.snapshot,
+                    appearance: entry.appearance
+                )
+            }
+        case .systemLarge:
+            withWidgetBackground {
+                LargeDeadlineWidget(
+                    snapshot: entry.snapshot,
+                    appearance: entry.appearance
+                )
+            }
+        case .systemExtraLarge:
+            withWidgetBackground {
+                ExtraLargeDeadlineWidget(
                     snapshot: entry.snapshot,
                     appearance: entry.appearance
                 )
@@ -214,6 +230,107 @@ private struct MediumDeadlineWidget: View {
     }
 }
 
+private struct LargeDeadlineWidget: View {
+    let snapshot: MobileWidgetDeadlineSnapshot
+    let appearance: MobileWidgetAppearance
+
+    private var palette: WidgetPalette {
+        WidgetPalette(appearance: appearance)
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            Text("Main D-Day")
+                .font(.headline)
+                .foregroundStyle(palette.secondary)
+
+            Text(snapshot.title)
+                .font(.system(size: 52, weight: .bold, design: .default))
+                .minimumScaleFactor(0.65)
+                .lineLimit(1)
+                .foregroundStyle(palette.primary)
+
+            Text(snapshot.deadlineText)
+                .font(.system(size: 96, weight: .bold, design: .rounded))
+                .monospacedDigit()
+                .minimumScaleFactor(0.45)
+                .lineLimit(1)
+                .foregroundStyle(palette.primary)
+
+            Spacer(minLength: 0)
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(snapshot.deadlineLabel)
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
+                    .foregroundStyle(palette.primary)
+
+                Text(snapshot.localDateText)
+                    .font(.callout)
+                    .minimumScaleFactor(0.6)
+                    .lineLimit(1)
+                    .foregroundStyle(palette.secondary)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .leading)
+        .padding(24)
+    }
+}
+
+private struct ExtraLargeDeadlineWidget: View {
+    let snapshot: MobileWidgetDeadlineSnapshot
+    let appearance: MobileWidgetAppearance
+
+    private var palette: WidgetPalette {
+        WidgetPalette(appearance: appearance)
+    }
+
+    var body: some View {
+        HStack(alignment: .center, spacing: 24) {
+            VStack(alignment: .leading, spacing: 14) {
+                Text("Main D-Day")
+                    .font(.title3)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(palette.secondary)
+
+                Text(snapshot.title)
+                    .font(.system(size: 64, weight: .bold, design: .default))
+                    .minimumScaleFactor(0.65)
+                    .lineLimit(1)
+                    .foregroundStyle(palette.primary)
+
+                Text(snapshot.deadlineLabel)
+                    .font(.title2)
+                    .fontWeight(.semibold)
+                    .minimumScaleFactor(0.7)
+                    .lineLimit(1)
+                    .foregroundStyle(palette.primary)
+
+                Text(snapshot.localDateText)
+                    .font(.title3)
+                    .minimumScaleFactor(0.6)
+                    .lineLimit(1)
+                    .foregroundStyle(palette.secondary)
+            }
+            .layoutPriority(1)
+
+            Spacer(minLength: 0)
+
+            Text(snapshot.deadlineText)
+                .font(.system(size: 126, weight: .bold, design: .rounded))
+                .monospacedDigit()
+                .minimumScaleFactor(0.45)
+                .lineLimit(1)
+                .layoutPriority(2)
+                .foregroundStyle(palette.primary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .padding(30)
+    }
+}
+
 private struct CircularDeadlineWidget: View {
     let snapshot: MobileWidgetDeadlineSnapshot
 
@@ -257,6 +374,18 @@ private struct RectangularDeadlineWidget: View {
 }
 
 #Preview(as: .systemSmall) {
+    DeadlineWidget()
+} timeline: {
+    DeadlineWidgetEntry(date: Date(), snapshot: .placeholder, appearance: .standard)
+}
+
+#Preview(as: .systemLarge) {
+    DeadlineWidget()
+} timeline: {
+    DeadlineWidgetEntry(date: Date(), snapshot: .placeholder, appearance: .standard)
+}
+
+#Preview(as: .systemExtraLarge) {
     DeadlineWidget()
 } timeline: {
     DeadlineWidgetEntry(date: Date(), snapshot: .placeholder, appearance: .standard)
