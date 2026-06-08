@@ -103,17 +103,17 @@ private struct SmallDeadlineWidget: View {
     let snapshot: MobileWidgetDeadlineSnapshot
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: 8) {
             Text(snapshot.title)
-                .font(.title3)
+                .font(.system(size: 28, weight: .bold, design: .default))
                 .fontWeight(.bold)
-                .minimumScaleFactor(0.75)
+                .minimumScaleFactor(0.7)
                 .lineLimit(1)
 
             Text(snapshot.deadlineText)
-                .font(.system(size: 57, weight: .bold, design: .rounded))
+                .font(.system(size: 68, weight: .bold, design: .rounded))
                 .monospacedDigit()
-                .minimumScaleFactor(0.5)
+                .minimumScaleFactor(0.45)
                 .lineLimit(1)
 
             Spacer(minLength: 0)
@@ -132,36 +132,38 @@ private struct MediumDeadlineWidget: View {
     let snapshot: MobileWidgetDeadlineSnapshot
 
     var body: some View {
-        HStack(alignment: .center, spacing: 14) {
-            VStack(alignment: .leading, spacing: 8) {
+        HStack(alignment: .center, spacing: 8) {
+            VStack(alignment: .leading, spacing: 5) {
                 Text(snapshot.title)
-                    .font(.system(size: 30, weight: .bold, design: .default))
+                    .font(.system(size: 38, weight: .bold, design: .default))
                     .fontWeight(.bold)
-                    .minimumScaleFactor(0.7)
-                    .lineLimit(1)
-
-                Text(snapshot.deadlineLabel)
-                    .font(.title3)
-                    .foregroundStyle(.secondary)
                     .minimumScaleFactor(0.65)
                     .lineLimit(1)
 
-                Text(snapshot.localDateText)
+                Text(snapshot.deadlineLabel)
                     .font(.callout)
                     .foregroundStyle(.secondary)
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
+
+                Text(snapshot.localDateText)
+                    .font(.caption2)
+                    .foregroundStyle(.secondary)
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
             }
+            .layoutPriority(1)
 
             Spacer(minLength: 0)
 
             Text(snapshot.deadlineText)
-                .font(.system(size: 60, weight: .bold, design: .rounded))
+                .font(.system(size: 66, weight: .bold, design: .rounded))
                 .monospacedDigit()
-                .minimumScaleFactor(0.5)
+                .minimumScaleFactor(0.45)
                 .lineLimit(1)
+                .layoutPriority(2)
         }
-        .padding(14)
+        .padding(12)
     }
 }
 
