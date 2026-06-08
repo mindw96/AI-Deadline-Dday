@@ -81,11 +81,7 @@ final class MobileAppModel: ObservableObject {
     }
 
     var featuredSummary: MobileDeadlineSummary? {
-        if let selectedSummary, selectedSummaryBelongsToVisibleContext(selectedSummary) {
-            return selectedSummary
-        }
-
-        return upcomingSummaries.first
+        selectedSummary
     }
 
     var activeConferences: [Conference] {
@@ -144,10 +140,6 @@ final class MobileAppModel: ObservableObject {
 
         selectedSubcategory = subcategory
         defaults.set(subcategory.rawValue, forKey: Key.selectedSubcategory)
-        syncWidgetSnapshot(reload: true)
-        Task {
-            await refreshNotificationsIfNeeded()
-        }
     }
 
     func select(_ source: MobileDeadlineSource) {
@@ -338,7 +330,11 @@ final class MobileAppModel: ObservableObject {
     }
 
     private func syncWidgetSnapshot(reload: Bool = false) {
-        guard let summary = featuredSummary else {
+        guard let summary = selectedSummary else {
+            widgetSnapshotStore.clear()
+            if reload {
+                WidgetCenter.shared.reloadAllTimelines()
+            }
             return
         }
 
@@ -359,18 +355,9 @@ final class MobileAppModel: ObservableObject {
         }
     }
 
-    private func selectedSummaryBelongsToVisibleContext(_ summary: MobileDeadlineSummary) -> Bool {
-        switch summary.source {
-        case .conference(let conferenceID, _):
-            return store?.conference(id: conferenceID)?.subcategory == selectedSubcategory
-        case .custom:
-            return true
-        }
-    }
-
     private func notificationScheduleItems() -> [MobileNotificationScheduleItem] {
         var seenIDs = Set<String>()
-        let summaries = ([featuredSummary].compactMap { $0 } + customDeadlineSummaries)
+        let summaries = ([selectedSummary].compactMap { $0 } + customDeadlineSummaries)
             .filter { $0.display.remainingSeconds > 0 }
 
         return summaries.compactMap { summary in

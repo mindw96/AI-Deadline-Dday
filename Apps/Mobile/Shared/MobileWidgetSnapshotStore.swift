@@ -22,6 +22,16 @@ struct MobileWidgetDeadlineSnapshot: Codable, Equatable, Sendable {
         deadlineDate: Date().addingTimeInterval(62 * 24 * 60 * 60),
         updatedAt: Date()
     )
+
+    static let empty = MobileWidgetDeadlineSnapshot(
+        title: "Dday",
+        deadlineText: "--",
+        deadlineLabel: "Select a main D-Day",
+        localDateText: "Open Dday",
+        sourceDateText: "",
+        deadlineDate: Date().addingTimeInterval(60 * 60),
+        updatedAt: Date()
+    )
 }
 
 struct MobileWidgetSnapshotStore {
@@ -43,6 +53,10 @@ struct MobileWidgetSnapshotStore {
         }
 
         defaults.set(data, forKey: Key.selectedDeadlineSnapshot)
+    }
+
+    func clear() {
+        defaults.removeObject(forKey: Key.selectedDeadlineSnapshot)
     }
 
     func load() -> MobileWidgetDeadlineSnapshot? {

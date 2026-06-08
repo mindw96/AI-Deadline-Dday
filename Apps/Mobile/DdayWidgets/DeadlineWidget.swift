@@ -23,7 +23,7 @@ struct DeadlineWidgetProvider: TimelineProvider {
         completion(
             DeadlineWidgetEntry(
                 date: Date(),
-                snapshot: store.load() ?? .placeholder
+                snapshot: store.load() ?? .empty
             )
         )
     }
@@ -33,7 +33,7 @@ struct DeadlineWidgetProvider: TimelineProvider {
         completion: @escaping (Timeline<DeadlineWidgetEntry>) -> Void
     ) {
         let now = Date()
-        let snapshot = store.load() ?? .placeholder
+        let snapshot = store.load() ?? .empty
         let entry = DeadlineWidgetEntry(date: now, snapshot: snapshot)
         let nextRefresh = nextRefreshDate(now: now, deadline: snapshot.deadlineDate)
         completion(Timeline(entries: [entry], policy: .after(nextRefresh)))

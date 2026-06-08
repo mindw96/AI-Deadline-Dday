@@ -23,6 +23,12 @@ struct MobileAppText {
     var homeTitle: String { "Dday" }
     var mainDeadline: String { korean ? "메인 D-Day" : "Main D-Day" }
     var upcoming: String { korean ? "다가오는 일정" : "Upcoming" }
+    var noMainDday: String { korean ? "메인 D-Day를 선택해 주세요" : "Choose a main D-Day" }
+    var noMainDdayDescription: String {
+        korean
+            ? "학회 상세에서 원하는 마감을 메인 D-Day로 설정하면 홈과 위젯에 표시됩니다."
+            : "Set a deadline as your main D-Day from a conference detail to show it on Home and widgets."
+    }
     var noUpcomingDeadlines: String { korean ? "다가오는 마감이 없습니다" : "No upcoming deadlines" }
     var conferenceDataUnavailable: String { korean ? "학회 데이터를 불러올 수 없습니다" : "Conference data unavailable" }
 

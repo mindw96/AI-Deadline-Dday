@@ -15,12 +15,23 @@ struct HomeScreen: View {
                         )
                     } else if let summary = model.featuredSummary {
                         DeadlineHero(summary: summary)
-                        UpcomingDeadlinesSection()
                     } else {
                         ContentUnavailableView(
-                            model.text.noUpcomingDeadlines,
-                            systemImage: "calendar.badge.exclamationmark"
+                            model.text.noMainDday,
+                            systemImage: "pin",
+                            description: Text(model.text.noMainDdayDescription)
                         )
+                    }
+
+                    if model.errorMessage == nil {
+                        if model.upcomingSummaries.isEmpty {
+                            ContentUnavailableView(
+                                model.text.noUpcomingDeadlines,
+                                systemImage: "calendar.badge.exclamationmark"
+                            )
+                        } else {
+                            UpcomingDeadlinesSection()
+                        }
                     }
                 }
                 .padding()
@@ -70,20 +81,26 @@ private struct UpcomingDeadlinesSection: View {
                 .font(.headline)
 
             ForEach(model.upcomingSummaries.prefix(6)) { summary in
-                HStack {
-                    VStack(alignment: .leading, spacing: 4) {
-                        Text(summary.title)
-                            .fontWeight(.semibold)
-                        Text(summary.deadlineLabel)
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
+                Button {
+                    model.select(summary.source)
+                } label: {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(summary.title)
+                                .fontWeight(.semibold)
+                            Text(summary.deadlineLabel)
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+
+                        Spacer()
+
+                        Text(summary.display.text)
+                            .font(.headline.monospacedDigit())
                     }
-
-                    Spacer()
-
-                    Text(summary.display.text)
-                        .font(.headline.monospacedDigit())
+                    .contentShape(Rectangle())
                 }
+                .buttonStyle(.plain)
                 .padding()
                 .background(Color(.secondarySystemBackground))
                 .clipShape(RoundedRectangle(cornerRadius: 8))
