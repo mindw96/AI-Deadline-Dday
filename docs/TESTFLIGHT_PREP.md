@@ -4,7 +4,7 @@
 
 이 문서는 `Dday` iPhone/iPad 앱을 TestFlight로 배포하기 위한 준비 절차입니다.
 
-현재 상태에서는 Apple Developer Program 결제가 아직 완료되지 않았으므로, 실제 TestFlight 업로드는 진행할 수 없습니다. 다만 앱 구조, Bundle ID, Widget, App Group, 알림 기능은 TestFlight로 넘어갈 수 있게 준비되어 있습니다.
+현재 Apple Developer Program 등록과 기본 signing 설정은 완료된 상태입니다. 앱 구조, Bundle ID, Widget, App Group, 알림 기능은 TestFlight와 App Store 제출 준비 단계로 넘어갈 수 있게 구현되어 있습니다.
 
 ## 1. 현재 가능한 것
 
