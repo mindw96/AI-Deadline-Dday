@@ -462,8 +462,6 @@ App Store 메타데이터 초안:
 - Review notes
 - 첫 심사 제출
 
-실제 제출 운영 체크리스트는 `docs/APP_STORE_SUBMISSION_CHECKLIST.md`에서 관리합니다.
-
 ## 16. Codex와 함께 작업하는 방식
 
 사용자님은 Python과 LLM 연구에 익숙하시고 Swift는 처음이므로, 작업 방식은 다음처럼 가져갑니다.
