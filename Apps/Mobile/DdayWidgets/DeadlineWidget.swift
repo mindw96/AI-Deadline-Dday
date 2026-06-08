@@ -141,16 +141,16 @@ private struct SmallDeadlineWidget: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 5) {
+        VStack(alignment: .leading, spacing: 6) {
             Text(snapshot.title)
-                .font(.system(size: 30, weight: .bold, design: .default))
+                .font(.system(size: 28, weight: .bold, design: .default))
                 .fontWeight(.bold)
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
                 .foregroundStyle(palette.primary)
 
             Text(snapshot.deadlineText)
-                .font(.system(size: 70, weight: .bold, design: .rounded))
+                .font(.system(size: 64, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .minimumScaleFactor(0.45)
                 .lineLimit(1)
@@ -163,8 +163,8 @@ private struct SmallDeadlineWidget: View {
                 .lineLimit(2)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
+        .padding(.horizontal, 16)
+        .padding(.vertical, 12)
     }
 }
 
