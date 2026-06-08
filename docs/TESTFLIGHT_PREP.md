@@ -91,7 +91,21 @@ Developer Program 등록과 Xcode signing 설정이 끝난 뒤에는 Xcode에서
 ./scripts/archive_ios_app.sh
 ```
 
-이 스크립트는 signing 설정이 끝난 뒤에 사용하는 보조 도구입니다. Developer Program 등록 전에는 실패하는 것이 정상입니다.
+Team ID를 명시해야 할 때는 다음처럼 실행합니다.
+
+```bash
+DEVELOPMENT_TEAM=<YOUR_TEAM_ID> ./scripts/archive_ios_app.sh
+```
+
+기본적으로 `-allowProvisioningUpdates`를 켜고 실행하므로, Xcode에 로그인된 Apple Developer 계정이 App ID와 provisioning profile을 자동으로 만들 수 있습니다.
+
+이 스크립트는 signing 설정이 끝난 뒤에 사용하는 보조 도구입니다. Developer Program 등록 전에는 실패하는 것이 정상입니다. 등록 후에도 Xcode가 아직 유료 Team을 인식하지 못하거나, 개발용 profile 생성을 위한 실제 기기가 등록되지 않은 경우 실패할 수 있습니다.
+
+현재 확인된 1차 차단 사례:
+
+- `Signing requires a development team`: Xcode target의 Team이 비어 있음
+- `Your team has no devices`: 개발용 provisioning profile을 만들 실제 기기가 아직 등록되지 않음
+- `conflicting provisioning settings`: 자동 개발 서명과 수동 배포 서명 옵션이 충돌함
 
 ## 7. TestFlight 운영 순서
 
