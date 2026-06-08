@@ -4,6 +4,7 @@ import WidgetKit
 struct DeadlineWidgetEntry: TimelineEntry {
     let date: Date
     let snapshot: MobileWidgetDeadlineSnapshot
+    let appearance: MobileWidgetAppearance
 }
 
 struct DeadlineWidgetProvider: TimelineProvider {
@@ -12,7 +13,8 @@ struct DeadlineWidgetProvider: TimelineProvider {
     func placeholder(in context: Context) -> DeadlineWidgetEntry {
         DeadlineWidgetEntry(
             date: Date(),
-            snapshot: .placeholder
+            snapshot: .placeholder,
+            appearance: .standard
         )
     }
 
@@ -23,7 +25,8 @@ struct DeadlineWidgetProvider: TimelineProvider {
         completion(
             DeadlineWidgetEntry(
                 date: Date(),
-                snapshot: store.load() ?? .empty
+                snapshot: store.load() ?? .empty,
+                appearance: store.loadAppearance()
             )
         )
     }
@@ -34,7 +37,11 @@ struct DeadlineWidgetProvider: TimelineProvider {
     ) {
         let now = Date()
         let snapshot = store.load() ?? .empty
-        let entry = DeadlineWidgetEntry(date: now, snapshot: snapshot)
+        let entry = DeadlineWidgetEntry(
+            date: now,
+            snapshot: snapshot,
+            appearance: store.loadAppearance()
+        )
         let nextRefresh = nextRefreshDate(now: now, deadline: snapshot.deadlineDate)
         completion(Timeline(entries: [entry], policy: .after(nextRefresh)))
     }
@@ -70,6 +77,7 @@ struct DeadlineWidget: Widget {
             .accessoryRectangular,
             .accessoryInline
         ])
+        .contentMarginsDisabled()
     }
 }
 
@@ -80,11 +88,19 @@ private struct DeadlineWidgetView: View {
     var body: some View {
         switch family {
         case .systemSmall:
-            SmallDeadlineWidget(snapshot: entry.snapshot)
-                .containerBackground(.background, for: .widget)
+            withWidgetBackground {
+                SmallDeadlineWidget(
+                    snapshot: entry.snapshot,
+                    appearance: entry.appearance
+                )
+            }
         case .systemMedium:
-            MediumDeadlineWidget(snapshot: entry.snapshot)
-                .containerBackground(.background, for: .widget)
+            withWidgetBackground {
+                MediumDeadlineWidget(
+                    snapshot: entry.snapshot,
+                    appearance: entry.appearance
+                )
+            }
         case .accessoryCircular:
             CircularDeadlineWidget(snapshot: entry.snapshot)
         case .accessoryRectangular:
@@ -93,7 +109,24 @@ private struct DeadlineWidgetView: View {
             Text("\(entry.snapshot.title) \(entry.snapshot.deadlineText)")
                 .font(.headline)
         default:
-            SmallDeadlineWidget(snapshot: entry.snapshot)
+            withWidgetBackground {
+                SmallDeadlineWidget(
+                    snapshot: entry.snapshot,
+                    appearance: entry.appearance
+                )
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func withWidgetBackground<Content: View>(
+        @ViewBuilder content: () -> Content
+    ) -> some View {
+        if let background = entry.appearance.background.widgetBackgroundColor {
+            content()
+                .containerBackground(background, for: .widget)
+        } else {
+            content()
                 .containerBackground(.background, for: .widget)
         }
     }
@@ -101,35 +134,47 @@ private struct DeadlineWidgetView: View {
 
 private struct SmallDeadlineWidget: View {
     let snapshot: MobileWidgetDeadlineSnapshot
+    let appearance: MobileWidgetAppearance
+
+    private var palette: WidgetPalette {
+        WidgetPalette(appearance: appearance)
+    }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 5) {
             Text(snapshot.title)
-                .font(.system(size: 28, weight: .bold, design: .default))
+                .font(.system(size: 30, weight: .bold, design: .default))
                 .fontWeight(.bold)
                 .minimumScaleFactor(0.7)
                 .lineLimit(1)
+                .foregroundStyle(palette.primary)
 
             Text(snapshot.deadlineText)
-                .font(.system(size: 68, weight: .bold, design: .rounded))
+                .font(.system(size: 70, weight: .bold, design: .rounded))
                 .monospacedDigit()
                 .minimumScaleFactor(0.45)
                 .lineLimit(1)
-
-            Spacer(minLength: 0)
+                .foregroundStyle(palette.primary)
 
             Text(snapshot.deadlineLabel)
                 .font(.callout)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(palette.secondary)
                 .minimumScaleFactor(0.7)
                 .lineLimit(2)
         }
-        .padding(14)
+        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
     }
 }
 
 private struct MediumDeadlineWidget: View {
     let snapshot: MobileWidgetDeadlineSnapshot
+    let appearance: MobileWidgetAppearance
+
+    private var palette: WidgetPalette {
+        WidgetPalette(appearance: appearance)
+    }
 
     var body: some View {
         HStack(alignment: .center, spacing: 8) {
@@ -139,16 +184,17 @@ private struct MediumDeadlineWidget: View {
                     .fontWeight(.bold)
                     .minimumScaleFactor(0.65)
                     .lineLimit(1)
+                    .foregroundStyle(palette.primary)
 
                 Text(snapshot.deadlineLabel)
                     .font(.callout)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.secondary)
                     .minimumScaleFactor(0.7)
                     .lineLimit(1)
 
                 Text(snapshot.localDateText)
                     .font(.caption2)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(palette.secondary)
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
             }
@@ -162,6 +208,7 @@ private struct MediumDeadlineWidget: View {
                 .minimumScaleFactor(0.45)
                 .lineLimit(1)
                 .layoutPriority(2)
+                .foregroundStyle(palette.primary)
         }
         .padding(12)
     }
@@ -212,11 +259,54 @@ private struct RectangularDeadlineWidget: View {
 #Preview(as: .systemSmall) {
     DeadlineWidget()
 } timeline: {
-    DeadlineWidgetEntry(date: Date(), snapshot: .placeholder)
+    DeadlineWidgetEntry(date: Date(), snapshot: .placeholder, appearance: .standard)
 }
 
 #Preview(as: .accessoryRectangular) {
     DeadlineWidget()
 } timeline: {
-    DeadlineWidgetEntry(date: Date(), snapshot: .placeholder)
+    DeadlineWidgetEntry(date: Date(), snapshot: .placeholder, appearance: .standard)
+}
+
+private struct WidgetPalette {
+    let primary: Color
+    let secondary: Color
+
+    init(appearance: MobileWidgetAppearance) {
+        switch appearance.textColor {
+        case .automatic:
+            switch appearance.background {
+            case .system:
+                primary = .primary
+                secondary = .secondary
+            case .white:
+                primary = .black
+                secondary = .black.opacity(0.58)
+            case .black, .navy:
+                primary = .white
+                secondary = .white.opacity(0.7)
+            }
+        case .black:
+            primary = .black
+            secondary = .black.opacity(0.58)
+        case .white:
+            primary = .white
+            secondary = .white.opacity(0.7)
+        }
+    }
+}
+
+private extension MobileWidgetBackground {
+    var widgetBackgroundColor: Color? {
+        switch self {
+        case .system:
+            return nil
+        case .white:
+            return .white
+        case .black:
+            return .black
+        case .navy:
+            return Color(red: 0.07, green: 0.11, blue: 0.22)
+        }
+    }
 }

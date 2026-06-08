@@ -34,9 +34,33 @@ struct MobileWidgetDeadlineSnapshot: Codable, Equatable, Sendable {
     )
 }
 
+enum MobileWidgetBackground: String, CaseIterable, Codable, Sendable {
+    case system
+    case white
+    case black
+    case navy
+}
+
+enum MobileWidgetTextColor: String, CaseIterable, Codable, Sendable {
+    case automatic
+    case black
+    case white
+}
+
+struct MobileWidgetAppearance: Codable, Equatable, Sendable {
+    var background: MobileWidgetBackground
+    var textColor: MobileWidgetTextColor
+
+    static let standard = MobileWidgetAppearance(
+        background: .system,
+        textColor: .automatic
+    )
+}
+
 struct MobileWidgetSnapshotStore {
     private enum Key {
         static let selectedDeadlineSnapshot = "selectedDeadlineSnapshot"
+        static let widgetAppearance = "widgetAppearance"
     }
 
     private let defaults: UserDefaults
@@ -65,5 +89,22 @@ struct MobileWidgetSnapshotStore {
         }
 
         return try? decoder.decode(MobileWidgetDeadlineSnapshot.self, from: data)
+    }
+
+    func saveAppearance(_ appearance: MobileWidgetAppearance) {
+        guard let data = try? encoder.encode(appearance) else {
+            return
+        }
+
+        defaults.set(data, forKey: Key.widgetAppearance)
+    }
+
+    func loadAppearance() -> MobileWidgetAppearance {
+        guard let data = defaults.data(forKey: Key.widgetAppearance),
+              let appearance = try? decoder.decode(MobileWidgetAppearance.self, from: data) else {
+            return .standard
+        }
+
+        return appearance
     }
 }

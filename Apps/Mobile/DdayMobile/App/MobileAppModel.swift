@@ -23,6 +23,7 @@ final class MobileAppModel: ObservableObject {
     @Published private(set) var updateMessage: String?
     @Published private(set) var notificationsEnabled = false
     @Published private(set) var notificationMessage: String?
+    @Published private(set) var widgetAppearance: MobileWidgetAppearance = .standard
     @Published var appLanguage: AppLanguage {
         didSet {
             settingsStore.appLanguage = appLanguage
@@ -61,6 +62,7 @@ final class MobileAppModel: ObservableObject {
         appLanguage = settingsStore.appLanguage
         selectedSubcategory = Self.loadSelectedSubcategory(defaults: defaults)
         selectedSource = Self.loadSelectedSource(defaults: defaults)
+        widgetAppearance = widgetSnapshotStore.loadAppearance()
         notificationsEnabled = defaults.bool(forKey: Key.notificationsEnabled)
         load()
         Task {
@@ -140,6 +142,24 @@ final class MobileAppModel: ObservableObject {
 
         selectedSubcategory = subcategory
         defaults.set(subcategory.rawValue, forKey: Key.selectedSubcategory)
+    }
+
+    func setWidgetBackground(_ background: MobileWidgetBackground) {
+        guard widgetAppearance.background != background else {
+            return
+        }
+
+        widgetAppearance.background = background
+        saveWidgetAppearance()
+    }
+
+    func setWidgetTextColor(_ textColor: MobileWidgetTextColor) {
+        guard widgetAppearance.textColor != textColor else {
+            return
+        }
+
+        widgetAppearance.textColor = textColor
+        saveWidgetAppearance()
     }
 
     func select(_ source: MobileDeadlineSource) {
@@ -327,6 +347,11 @@ final class MobileAppModel: ObservableObject {
 
             return summary(for: userDeadline)
         }
+    }
+
+    private func saveWidgetAppearance() {
+        widgetSnapshotStore.saveAppearance(widgetAppearance)
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     private func syncWidgetSnapshot(reload: Bool = false) {

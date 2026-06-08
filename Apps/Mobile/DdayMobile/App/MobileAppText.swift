@@ -62,6 +62,14 @@ struct MobileAppText {
     var checkConferenceListUpdates: String { korean ? "학회 목록 업데이트 확인" : "Check Conference List Updates" }
     var updating: String { korean ? "업데이트 중..." : "Updating..." }
     var updateSucceeded: String { korean ? "학회 목록을 업데이트했습니다." : "Conference list updated." }
+    var widgetAppearance: String { korean ? "위젯 외형" : "Widget Appearance" }
+    var widgetBackground: String { korean ? "배경색" : "Background" }
+    var widgetTextColor: String { korean ? "글씨색" : "Text Color" }
+    var widgetAppearanceDescription: String {
+        korean
+            ? "홈 화면 위젯의 배경색과 글씨색을 선택합니다. 시스템 배경은 iOS 위젯 기본 스타일을 따릅니다."
+            : "Choose the Home Screen widget background and text color. System background follows the default iOS widget style."
+    }
     var notifications: String { korean ? "알림" : "Notifications" }
     var enableNotifications: String { korean ? "마감 알림 켜기" : "Enable deadline reminders" }
     var notificationDescription: String {
@@ -107,6 +115,30 @@ struct MobileAppText {
             return english
         case .korean:
             return koreanLanguage
+        }
+    }
+
+    func widgetBackgroundTitle(_ background: MobileWidgetBackground) -> String {
+        switch background {
+        case .system:
+            return korean ? "시스템" : "System"
+        case .white:
+            return korean ? "흰색" : "White"
+        case .black:
+            return korean ? "검정" : "Black"
+        case .navy:
+            return korean ? "네이비" : "Navy"
+        }
+    }
+
+    func widgetTextColorTitle(_ textColor: MobileWidgetTextColor) -> String {
+        switch textColor {
+        case .automatic:
+            return korean ? "자동" : "Auto"
+        case .black:
+            return korean ? "검정" : "Black"
+        case .white:
+            return korean ? "흰색" : "White"
         }
     }
 
