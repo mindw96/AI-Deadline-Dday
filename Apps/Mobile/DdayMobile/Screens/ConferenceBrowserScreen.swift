@@ -9,7 +9,7 @@ struct ConferenceBrowserScreen: View {
             List {
                 ForEach(ConferenceSubcategory.allCases, id: \.rawValue) { subcategory in
                     Button {
-                        model.selectedSubcategory = subcategory
+                        model.selectSubcategory(subcategory)
                     } label: {
                         HStack {
                             Text(model.text.subcategoryTitle(subcategory))

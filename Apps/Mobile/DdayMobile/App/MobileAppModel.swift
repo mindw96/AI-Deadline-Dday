@@ -10,12 +10,13 @@ final class MobileAppModel: ObservableObject {
         static let selectedConferenceID = "mobileSelectedConferenceID"
         static let selectedDeadlineID = "mobileSelectedDeadlineID"
         static let selectedCustomDeadlineID = "mobileSelectedCustomDeadlineID"
+        static let selectedSubcategory = "mobileSelectedSubcategory"
         static let notificationsEnabled = "mobileNotificationsEnabled"
     }
 
     @Published private(set) var store: ConferenceStore?
     @Published private(set) var errorMessage: String?
-    @Published var selectedSubcategory: ConferenceSubcategory = .ml
+    @Published private(set) var selectedSubcategory: ConferenceSubcategory
     @Published private(set) var userDeadlines: [UserDeadline] = []
     @Published private(set) var selectedSource: MobileDeadlineSource?
     @Published private(set) var isUpdatingData = false
@@ -58,6 +59,7 @@ final class MobileAppModel: ObservableObject {
         self.notificationScheduler = notificationScheduler
         self.defaults = defaults
         appLanguage = settingsStore.appLanguage
+        selectedSubcategory = Self.loadSelectedSubcategory(defaults: defaults)
         selectedSource = Self.loadSelectedSource(defaults: defaults)
         notificationsEnabled = defaults.bool(forKey: Key.notificationsEnabled)
         load()
@@ -79,7 +81,11 @@ final class MobileAppModel: ObservableObject {
     }
 
     var featuredSummary: MobileDeadlineSummary? {
-        selectedSummary ?? upcomingSummaries.first
+        if let selectedSummary, selectedSummaryBelongsToVisibleContext(selectedSummary) {
+            return selectedSummary
+        }
+
+        return upcomingSummaries.first
     }
 
     var activeConferences: [Conference] {
@@ -87,7 +93,10 @@ final class MobileAppModel: ObservableObject {
     }
 
     var upcomingSummaries: [MobileDeadlineSummary] {
-        let conferenceSummaries = store?.conferences.flatMap(upcomingSummaries(for:)) ?? []
+        let conferenceSummaries = store?.conferences
+            .filter { $0.subcategory == selectedSubcategory }
+            .flatMap(upcomingSummaries(for:)) ?? []
+
         return (conferenceSummaries + customDeadlineSummaries.filter { $0.display.remainingSeconds > 0 })
             .sorted { $0.display.deadlineDate < $1.display.deadlineDate }
     }
@@ -126,6 +135,19 @@ final class MobileAppModel: ObservableObject {
                 summary(for: conference, deadline: deadline)
             }
             .sorted { $0.display.deadlineDate < $1.display.deadlineDate }
+    }
+
+    func selectSubcategory(_ subcategory: ConferenceSubcategory) {
+        guard selectedSubcategory != subcategory else {
+            return
+        }
+
+        selectedSubcategory = subcategory
+        defaults.set(subcategory.rawValue, forKey: Key.selectedSubcategory)
+        syncWidgetSnapshot(reload: true)
+        Task {
+            await refreshNotificationsIfNeeded()
+        }
     }
 
     func select(_ source: MobileDeadlineSource) {
@@ -337,6 +359,15 @@ final class MobileAppModel: ObservableObject {
         }
     }
 
+    private func selectedSummaryBelongsToVisibleContext(_ summary: MobileDeadlineSummary) -> Bool {
+        switch summary.source {
+        case .conference(let conferenceID, _):
+            return store?.conference(id: conferenceID)?.subcategory == selectedSubcategory
+        case .custom:
+            return true
+        }
+    }
+
     private func notificationScheduleItems() -> [MobileNotificationScheduleItem] {
         var seenIDs = Set<String>()
         let summaries = ([featuredSummary].compactMap { $0 } + customDeadlineSummaries)
@@ -396,6 +427,15 @@ final class MobileAppModel: ObservableObject {
         default:
             return nil
         }
+    }
+
+    private static func loadSelectedSubcategory(defaults: UserDefaults) -> ConferenceSubcategory {
+        guard let rawValue = defaults.string(forKey: Key.selectedSubcategory),
+              let subcategory = ConferenceSubcategory(rawValue: rawValue) else {
+            return .ml
+        }
+
+        return subcategory
     }
 
     private static let dateFormatter: DateFormatter = {
