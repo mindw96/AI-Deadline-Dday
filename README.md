@@ -68,15 +68,25 @@ The release workflow uploads both a zip archive and a DMG, plus SHA-256 checksum
 files. Mac users should usually download the DMG. If a tag already exists, run
 the `Release` workflow manually from GitHub Actions and enter that tag name.
 
+For public macOS distribution outside the Mac App Store, build a Developer ID
+signed and notarized release locally:
+
+```bash
+./scripts/notarize_release.sh v1.0.1
+```
+
+See [macOS Signing and Notarization](docs/MACOS_NOTARIZATION.md) for the one-time
+certificate and notary profile setup.
+
 ## Install
 
 Download the latest DMG from the GitHub Releases page, open it, and run
 `Dday.app`.
 
-This app is not notarized because it is distributed without an Apple Developer
-Program account. On first launch, macOS may block the app with an unidentified
-developer or damaged-app warning. If that happens, move `Dday.app` to
-`/Applications` and run:
+Older ad-hoc signed builds may be blocked by Gatekeeper with an unidentified
+developer or damaged-app warning. Current public macOS releases should be
+Developer ID signed and notarized before distribution. If you are testing an
+older local build, move `Dday.app` to `/Applications` and run:
 
 ```bash
 xattr -dr com.apple.quarantine /Applications/Dday.app
