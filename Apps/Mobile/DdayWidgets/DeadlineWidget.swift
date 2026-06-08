@@ -91,6 +91,7 @@ private struct DeadlineWidgetView: View {
             RectangularDeadlineWidget(snapshot: entry.snapshot)
         case .accessoryInline:
             Text("\(entry.snapshot.title) \(entry.snapshot.deadlineText)")
+                .font(.headline)
         default:
             SmallDeadlineWidget(snapshot: entry.snapshot)
                 .containerBackground(.background, for: .widget)
@@ -102,25 +103,28 @@ private struct SmallDeadlineWidget: View {
     let snapshot: MobileWidgetDeadlineSnapshot
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
+        VStack(alignment: .leading, spacing: 10) {
             Text(snapshot.title)
-                .font(.headline)
+                .font(.title3)
+                .fontWeight(.bold)
+                .minimumScaleFactor(0.75)
                 .lineLimit(1)
 
             Text(snapshot.deadlineText)
-                .font(.system(size: 38, weight: .bold, design: .rounded))
+                .font(.system(size: 57, weight: .bold, design: .rounded))
                 .monospacedDigit()
-                .minimumScaleFactor(0.65)
+                .minimumScaleFactor(0.5)
                 .lineLimit(1)
 
             Spacer(minLength: 0)
 
             Text(snapshot.deadlineLabel)
-                .font(.caption)
+                .font(.callout)
                 .foregroundStyle(.secondary)
+                .minimumScaleFactor(0.7)
                 .lineLimit(2)
         }
-        .padding()
+        .padding(14)
     }
 }
 
@@ -128,33 +132,36 @@ private struct MediumDeadlineWidget: View {
     let snapshot: MobileWidgetDeadlineSnapshot
 
     var body: some View {
-        HStack(alignment: .center, spacing: 16) {
-            VStack(alignment: .leading, spacing: 6) {
+        HStack(alignment: .center, spacing: 14) {
+            VStack(alignment: .leading, spacing: 8) {
                 Text(snapshot.title)
-                    .font(.title3)
+                    .font(.system(size: 30, weight: .bold, design: .default))
                     .fontWeight(.bold)
+                    .minimumScaleFactor(0.7)
                     .lineLimit(1)
 
                 Text(snapshot.deadlineLabel)
-                    .font(.subheadline)
+                    .font(.title3)
                     .foregroundStyle(.secondary)
+                    .minimumScaleFactor(0.65)
                     .lineLimit(1)
 
                 Text(snapshot.localDateText)
-                    .font(.caption)
+                    .font(.callout)
                     .foregroundStyle(.secondary)
+                    .minimumScaleFactor(0.7)
                     .lineLimit(1)
             }
 
             Spacer(minLength: 0)
 
             Text(snapshot.deadlineText)
-                .font(.system(size: 40, weight: .bold, design: .rounded))
+                .font(.system(size: 60, weight: .bold, design: .rounded))
                 .monospacedDigit()
-                .minimumScaleFactor(0.65)
+                .minimumScaleFactor(0.5)
                 .lineLimit(1)
         }
-        .padding()
+        .padding(14)
     }
 }
 
@@ -164,15 +171,16 @@ private struct CircularDeadlineWidget: View {
     var body: some View {
         VStack(spacing: 2) {
             Text(snapshot.title)
-                .font(.caption2)
-                .fontWeight(.semibold)
+                .font(.caption)
+                .fontWeight(.bold)
+                .minimumScaleFactor(0.65)
                 .lineLimit(1)
 
             Text(snapshot.deadlineText)
-                .font(.caption)
+                .font(.title3)
                 .fontWeight(.bold)
                 .monospacedDigit()
-                .minimumScaleFactor(0.6)
+                .minimumScaleFactor(0.45)
                 .lineLimit(1)
         }
     }
@@ -182,15 +190,18 @@ private struct RectangularDeadlineWidget: View {
     let snapshot: MobileWidgetDeadlineSnapshot
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: 3) {
             Text("\(snapshot.title) \(snapshot.deadlineText)")
-                .font(.headline)
+                .font(.title3)
+                .fontWeight(.bold)
                 .monospacedDigit()
+                .minimumScaleFactor(0.65)
                 .lineLimit(1)
 
             Text(snapshot.deadlineLabel)
-                .font(.caption)
+                .font(.callout)
                 .foregroundStyle(.secondary)
+                .minimumScaleFactor(0.7)
                 .lineLimit(1)
         }
     }
