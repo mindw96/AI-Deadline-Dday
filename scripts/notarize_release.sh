@@ -40,6 +40,7 @@ xcrun stapler validate "$APP_DIR"
 
 ./scripts/package_release.sh "$TAG"
 
+codesign --force --timestamp --sign "$SIGN_IDENTITY" "$DMG_PATH"
 xcrun notarytool submit "$DMG_PATH" \
   --keychain-profile "$NOTARY_PROFILE" \
   --wait
