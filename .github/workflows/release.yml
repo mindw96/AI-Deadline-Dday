@@ -31,26 +31,45 @@ jobs:
             echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
           fi
 
+      - name: Check for existing release
+        id: existing_release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release_tag.outputs.tag }}
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+            echo "Release $RELEASE_TAG already exists; skipping automated packaging."
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Check out repository
+        if: steps.existing_release.outputs.exists != 'true'
         uses: actions/checkout@v6
         with:
           ref: ${{ steps.release_tag.outputs.tag }}
 
       - name: Show Swift version
+        if: steps.existing_release.outputs.exists != 'true'
         run: swift --version
 
       - name: Run core checks
+        if: steps.existing_release.outputs.exists != 'true'
         run: swift run DdayCoreChecks
 
       - name: Build app bundle
+        if: steps.existing_release.outputs.exists != 'true'
         run: ./scripts/build_app.sh
 
       - name: Package app
+        if: steps.existing_release.outputs.exists != 'true'
         env:
           RELEASE_TAG: ${{ steps.release_tag.outputs.tag }}
         run: ./scripts/package_release.sh "${RELEASE_TAG}"
 
       - name: Publish GitHub Release
+        if: steps.existing_release.outputs.exists != 'true'
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ steps.release_tag.outputs.tag }}
