@@ -1,133 +1,115 @@
 # Dday
 
-`Dday` is a lightweight macOS menu bar app for tracking academic conference deadlines.
+Dday keeps AI conference deadlines close at hand across Apple devices.
+
+Use it as a quiet macOS menu bar countdown, or as iPhone and iPad widgets for the
+deadline you care about most.
+
+[한국어 README](README.ko.md)
+
+## Preview
 
 <p align="center">
-  <img src="docs/assets/menubar-preview.png" alt="Dday menu bar badge showing AAAI D-62" width="320">
+  <img src="docs/assets/menubar-preview.png" alt="Dday macOS menu bar badge showing AAAI D-62" width="320">
+  <img src="docs/assets/widget-home-preview.png" alt="Dday iPhone Home Screen widgets showing AAAI D-43" width="220">
+  <img src="docs/assets/widget-lock-preview.png" alt="Dday iPhone Lock Screen widgets showing AAAI D-43" width="220">
 </p>
 
-The first version is focused on one simple workflow:
+## Platform Guides
 
-1. Load a curated conference deadline list from local JSON.
-2. Let the user choose a conference deadline from the menu bar menu.
-3. Show the selected deadline as `D-42`, `D-Day`, or `D+3` in the macOS menu bar.
+| Experience | Platform | Guide |
+| --- | --- | --- |
+| Menu Bar D-Day | macOS | [Menu Bar D-Day for macOS](docs/MENUBAR_DDAY.md) |
+| Widget D-Day | iPhone, iPad | [Widget D-Day for iPhone and iPad](docs/WIDGET_DDAY.md) |
 
-The menu bar item also supports three visual styles:
+## Features
 
-- Plain Text
-- Light Badge
-- Korean and English menu labels
+- Curated AI conference deadline list grouped by Machine Learning, Computer Vision, NLP, and General AI.
+- Local-time D-Day calculation with AoE deadline support.
+- User-selected main D-Day for the app and widgets.
+- Custom D-Days for deadlines that are not in the conference list.
+- Korean, English, and system-language modes.
+- Local-first settings and custom data.
+- Manual conference list update from the public GitHub dataset.
 
-## Current Status
+## Distribution
 
-This repository is in early MVP development.
+- iPhone and iPad: distributed through the App Store.
+- macOS: distributed through signed and notarized GitHub Releases.
 
-- Platform: macOS
-- Language: Swift
-- UI: AppKit menu bar app
-- Data: bundled JSON
-- License: TBD
+Download the macOS app from the
+[latest GitHub Release](https://github.com/mindw96/AI-Conference-Dday/releases/latest).
 
-## Build
+## Repository Layout
+
+```text
+Dday/
+  Apps/
+    Mobile/                 # iPhone/iPad app and WidgetKit extension
+  Checks/
+    DdayCoreChecks/          # lightweight validation runner
+  Sources/
+    DdayCore/                # shared models, data loading, and D-Day logic
+    DdayApp/                 # macOS menu bar app
+  data/
+    conferences.json         # public conference deadline dataset
+  docs/
+  scripts/
+```
+
+`DdayCore` is shared across Apple platforms. The platform apps are intentionally
+thin: they present deadlines, settings, widgets, and release-specific UI around
+the same core data model.
+
+## Development
+
+Build the Swift package:
 
 ```bash
 swift build
 ```
 
-## Check
+Run the core data and calculation checks:
 
 ```bash
-swift run DdayCoreChecks
+swift build --product DdayCoreChecks
+.build/debug/DdayCoreChecks
 ```
 
-The current Command Line Tools setup on this machine does not expose `XCTest`, so the first local verification target is a lightweight Swift executable check runner.
-
-## Build a Local `.app`
+Build the macOS app bundle:
 
 ```bash
 ./scripts/build_app.sh
 ```
 
-The script creates:
+Build the iPhone/iPad app from Xcode:
 
 ```text
-build/Dday.app
+Apps/Mobile/DdayMobile.xcodeproj
 ```
 
-## Release
+For release work, see:
 
-Releases are automated with GitHub Actions. Create and push a version tag to build
-`Dday.app`, package it as a zip, and publish a GitHub Release:
-
-```bash
-git tag v0.1.1
-git push origin v0.1.1
-```
-
-The release workflow uploads both a zip archive and a DMG, plus SHA-256 checksum
-files. Mac users should usually download the DMG.
-
-For public macOS distribution outside the Mac App Store, build a Developer ID
-signed and notarized release locally:
-
-```bash
-./scripts/notarize_release.sh v1.0.1
-```
-
-The notarized release script also generates `dist/appcast.xml`, which powers
-Sparkle automatic updates for the macOS app. Upload it alongside the DMG, zip,
-and checksum files.
-
-See [macOS Signing and Notarization](docs/MACOS_NOTARIZATION.md) for the one-time
-certificate and notary profile setup.
-
-## Install
-
-Download the latest DMG from the GitHub Releases page, open it, and run
-drag `Dday.app` to `Applications`.
-
-Older ad-hoc signed builds may be blocked by Gatekeeper with an unidentified
-developer or damaged-app warning. Current public macOS releases should be
-Developer ID signed and notarized before distribution. If you are testing an
-older local build, move `Dday.app` to `/Applications` and run:
-
-```bash
-xattr -dr com.apple.quarantine /Applications/Dday.app
-open /Applications/Dday.app
-```
+- [macOS Signing and Notarization](docs/MACOS_NOTARIZATION.md)
+- [Release Guide](docs/RELEASE_GUIDE.md)
+- [TestFlight Preparation Guide](docs/TESTFLIGHT_PREP.md)
 
 ## Data
 
-The app currently ships with a small seed dataset in:
-
-```text
-Sources/DdayApp/Resources/conferences.json
-```
-
-The public contribution-oriented copy lives in:
+The public conference list lives in:
 
 ```text
 data/conferences.json
 ```
 
-Every conference entry must include a source URL and the date when the source was checked.
-
-## Menu Bar Options
-
-Open the menu bar item and use:
-
-- `Menu Bar Display` to choose whether the conference name is shown.
-- `Visual Style` to switch between plain text and a light rounded badge.
-- `Language` to use the system language, English, or Korean.
-- `Machine Learning`, `Computer Vision`, `NLP`, and `General AI` to browse conferences by subcategory.
-- `Add Custom D-Day...` to add a deadline that is not in the built-in conference list.
-- `Check Conference List Updates` to manually fetch the latest conference list from GitHub.
-
-The D-Day count is calculated in the user's local timezone. The menu shows both the source deadline, such as `2026-07-28 23:59 AoE`, and the converted local time.
-Conferences whose deadlines have all passed remain selectable from `Past Conferences`, but are hidden from the main conference list.
-
-When an update succeeds, the downloaded conference list is cached locally in Application Support and used on the next launch. If the update fails, the app keeps using the last cached list or the bundled list.
+Every conference entry should include a source URL and the date when the source
+was checked.
 
 ## Privacy
 
-The initial version does not collect analytics, require accounts, or send user settings to a server. Settings are stored locally with `UserDefaults`.
+Dday is local-first. It does not require accounts, collect analytics, or include
+tracking SDKs. See [Privacy](docs/PRIVACY.md).
+
+## License
+
+TBD.
