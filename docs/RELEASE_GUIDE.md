@@ -19,6 +19,7 @@ build script directly.
 
 ## Public Release Checklist
 
+- If `image.png` changed, run `./scripts/update_app_icons.sh`.
 - Run `swift run DdayCoreChecks`.
 - Build a Developer ID signed and notarized release.
 - Confirm the app opens and appears in the macOS menu bar.

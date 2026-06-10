@@ -12,7 +12,8 @@ APP_DIR="$ROOT/build/Dday.app"
 DIST_DIR="$ROOT/dist"
 DMG_ROOT="$ROOT/build/dmg-root"
 RW_DMG="$ROOT/build/Dday-${TAG}-rw.dmg"
-MOUNT_DIR="$ROOT/build/dmg-mount"
+MOUNT_DIR=""
+ATTACH_PLIST="$ROOT/build/Dday-${TAG}-attach.plist"
 DMG_PATH="$DIST_DIR/Dday-${TAG}.dmg"
 ZIP_PATH="$DIST_DIR/Dday-${TAG}.zip"
 BACKGROUND_PATH="$DMG_ROOT/.background/dmg-background.png"
@@ -34,8 +35,8 @@ rm -f "$ZIP_PATH" \
 
 ditto --norsrc -c -k --keepParent "$APP_DIR" "$ZIP_PATH"
 
-rm -rf "$DMG_ROOT" "$MOUNT_DIR"
-mkdir -p "$DMG_ROOT/.background" "$MOUNT_DIR"
+rm -rf "$DMG_ROOT" "$ATTACH_PLIST"
+mkdir -p "$DMG_ROOT/.background"
 ditto --norsrc "$APP_DIR" "$DMG_ROOT/Dday.app"
 ln -s /Applications "$DMG_ROOT/Applications"
 swift "$ROOT/scripts/generate_dmg_background.swift" "$BACKGROUND_PATH"
@@ -43,18 +44,36 @@ SetFile -a V "$DMG_ROOT/.background" || true
 
 hdiutil create \
   -volname "Dday" \
+  -fs HFS+ \
   -srcfolder "$DMG_ROOT" \
   -ov \
   -format UDRW \
   "$RW_DMG"
 
-hdiutil attach "$RW_DMG" \
-  -mountpoint "$MOUNT_DIR" \
+ATTACH_OUTPUT="$(hdiutil attach "$RW_DMG" \
   -nobrowse \
-  -quiet
+  -readwrite \
+  -plist)"
+printf "%s\n" "$ATTACH_OUTPUT" > "$ATTACH_PLIST"
+MOUNT_DIR="$(awk '
+  /<key>mount-point<\/key>/ {
+    getline
+    gsub(/^[[:space:]]*<string>/, "")
+    gsub(/<\/string>[[:space:]]*$/, "")
+    print
+    exit
+  }
+' "$ATTACH_PLIST")"
+
+if [[ -z "$MOUNT_DIR" || ! -d "$MOUNT_DIR" ]]; then
+  echo "Could not resolve mounted DMG path." >&2
+  exit 67
+fi
 
 cleanup() {
-  hdiutil detach "$MOUNT_DIR" -quiet || true
+  if [[ -n "$MOUNT_DIR" ]]; then
+    hdiutil detach "$MOUNT_DIR" -quiet || true
+  fi
 }
 trap cleanup EXIT
 
@@ -86,9 +105,20 @@ osascript \
   -e "set dmgFolder to POSIX file \"$MOUNT_DIR\" as alias" \
   -e 'tell application "Finder" to close container window of dmgFolder' >/dev/null || true
 
+for _ in {1..20}; do
+  [[ -f "$MOUNT_DIR/.DS_Store" ]] && break
+  sleep 0.5
+done
+
+if [[ ! -f "$MOUNT_DIR/.DS_Store" ]]; then
+  echo "Finder did not write .DS_Store for the DMG layout." >&2
+  exit 67
+fi
+
 sync
 hdiutil detach "$MOUNT_DIR" -quiet
 trap - EXIT
+MOUNT_DIR=""
 
 hdiutil convert "$RW_DMG" \
   -format UDZO \
