@@ -81,7 +81,7 @@ certificate and notary profile setup.
 ## Install
 
 Download the latest DMG from the GitHub Releases page, open it, and run
-`Dday.app`.
+drag `Dday.app` to `Applications`.
 
 Older ad-hoc signed builds may be blocked by Gatekeeper with an unidentified
 developer or damaged-app warning. Current public macOS releases should be
