@@ -37,7 +37,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ steps.release_tag.outputs.tag }}
         run: |
-          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo "exists=true" >> "$GITHUB_OUTPUT"
             echo "Release $RELEASE_TAG already exists; skipping automated packaging."
           else
@@ -77,7 +77,7 @@ jobs:
           RELEASE_TAG: ${{ steps.release_tag.outputs.tag }}
         run: |
           tag="${RELEASE_TAG}"
-          if gh release view "$tag" >/dev/null 2>&1; then
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
             echo "Release $tag already exists; leaving existing assets untouched."
             exit 0
           fi
@@ -89,4 +89,5 @@ jobs:
             "dist/Dday-${tag}.dmg.sha256" \
             --title "Dday ${tag}" \
             --generate-notes \
+            --repo "$GITHUB_REPOSITORY" \
             --verify-tag
