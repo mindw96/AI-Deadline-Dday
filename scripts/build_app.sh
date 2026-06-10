@@ -5,7 +5,26 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 APP_DIR="$ROOT/build/Dday.app"
 SIGN_IDENTITY="${MACOS_SIGN_IDENTITY:-${SIGN_IDENTITY:-}}"
 APP_VERSION="${APP_VERSION:-}"
-APP_BUILD_VERSION="${APP_BUILD_VERSION:-$APP_VERSION}"
+APP_BUILD_VERSION="${APP_BUILD_VERSION:-}"
+
+version_to_build_number() {
+  local version="${1%%-*}"
+  local major minor patch rest
+  IFS='.' read -r major minor patch rest <<< "$version"
+  major="${major:-0}"
+  minor="${minor:-0}"
+  patch="${patch:-0}"
+
+  if [[ "$major" =~ ^[0-9]+$ && "$minor" =~ ^[0-9]+$ && "$patch" =~ ^[0-9]+$ ]]; then
+    printf "%d" $((10#$major * 10000 + 10#$minor * 100 + 10#$patch))
+  else
+    printf "%s" "$1"
+  fi
+}
+
+if [[ -z "$APP_BUILD_VERSION" && -n "$APP_VERSION" ]]; then
+  APP_BUILD_VERSION="$(version_to_build_number "$APP_VERSION")"
+fi
 
 cd "$ROOT"
 swift build -c release
