@@ -26,5 +26,9 @@
     <true/>
     <key>NSHighResolutionCapable</key>
     <true/>
+    <key>SUFeedURL</key>
+    <string>https://github.com/mindw96/AI-Conference-Dday/releases/latest/download/appcast.xml</string>
+    <key>SUPublicEDKey</key>
+    <string>rpMRpkRA/cmUA4BmdWj10GYzD6rfr5LEIBU5hcel+Kg=</string>
 </dict>
 </plist>

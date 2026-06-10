@@ -12,6 +12,7 @@ final class MenuBarController: NSObject {
     private let settings: SettingsStore
     private let userDeadlineStore: UserDeadlineStore
     private let conferenceDataUpdater: ConferenceDataUpdater
+    private let appUpdater: AppUpdater
     private let badgeRenderer = StatusBadgeRenderer()
     private var refreshTimer: Timer?
     private var lastSelectedWebsiteURL: URL?
@@ -26,7 +27,8 @@ final class MenuBarController: NSObject {
         calculator: DeadlineCalculator,
         settings: SettingsStore,
         userDeadlineStore: UserDeadlineStore,
-        conferenceDataUpdater: ConferenceDataUpdater = ConferenceDataUpdater()
+        conferenceDataUpdater: ConferenceDataUpdater = ConferenceDataUpdater(),
+        appUpdater: AppUpdater = AppUpdater()
     ) {
         self.statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
         self.store = store
@@ -34,6 +36,7 @@ final class MenuBarController: NSObject {
         self.settings = settings
         self.userDeadlineStore = userDeadlineStore
         self.conferenceDataUpdater = conferenceDataUpdater
+        self.appUpdater = appUpdater
 
         super.init()
 
@@ -217,6 +220,7 @@ final class MenuBarController: NSObject {
         }
 
         menu.addItem(conferenceUpdateMenuItem())
+        menu.addItem(appUpdater.menuItem(title: text.checkForAppUpdates))
 
         let refreshItem = NSMenuItem(title: text.refresh, action: #selector(refreshFromMenu), keyEquivalent: "r")
         refreshItem.target = self
@@ -376,6 +380,7 @@ final class MenuBarController: NSObject {
         menu.addItem(infoItem(text.noConferences))
         menu.addItem(.separator())
         menu.addItem(conferenceUpdateMenuItem())
+        menu.addItem(appUpdater.menuItem(title: text.checkForAppUpdates))
         menu.addItem(.separator())
         let quitItem = NSMenuItem(title: text.quit, action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self
@@ -927,6 +932,10 @@ private struct MenuText {
 
     var checkConferenceUpdates: String {
         usesKorean ? "학회 목록 업데이트 확인" : "Check Conference List Updates"
+    }
+
+    var checkForAppUpdates: String {
+        usesKorean ? "Dday 업데이트 확인..." : "Check for Dday Updates..."
     }
 
     var checkingConferenceUpdates: String {

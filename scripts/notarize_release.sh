@@ -50,6 +50,13 @@ xcrun stapler validate "$DMG_PATH"
 shasum -a 256 "$ZIP_PATH" > "$ZIP_PATH.sha256"
 shasum -a 256 "$DMG_PATH" > "$DMG_PATH.sha256"
 
+if [[ "${SKIP_SPARKLE_APPCAST:-0}" != "1" ]]; then
+  ./scripts/generate_sparkle_appcast.sh "$TAG"
+fi
+
 echo "Notarized release artifacts:"
 echo "  $DMG_PATH"
 echo "  $ZIP_PATH"
+if [[ -f "$DIST_DIR/appcast.xml" ]]; then
+  echo "  $DIST_DIR/appcast.xml"
+fi

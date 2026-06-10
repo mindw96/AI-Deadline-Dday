@@ -65,8 +65,7 @@ git push origin v0.1.1
 ```
 
 The release workflow uploads both a zip archive and a DMG, plus SHA-256 checksum
-files. Mac users should usually download the DMG. If a tag already exists, run
-the `Release` workflow manually from GitHub Actions and enter that tag name.
+files. Mac users should usually download the DMG.
 
 For public macOS distribution outside the Mac App Store, build a Developer ID
 signed and notarized release locally:
@@ -74,6 +73,10 @@ signed and notarized release locally:
 ```bash
 ./scripts/notarize_release.sh v1.0.1
 ```
+
+The notarized release script also generates `dist/appcast.xml`, which powers
+Sparkle automatic updates for the macOS app. Upload it alongside the DMG, zip,
+and checksum files.
 
 See [macOS Signing and Notarization](docs/MACOS_NOTARIZATION.md) for the one-time
 certificate and notary profile setup.

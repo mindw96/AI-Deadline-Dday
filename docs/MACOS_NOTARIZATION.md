@@ -41,6 +41,7 @@ The script:
 5. Creates the zip and DMG release files.
 6. Notarizes and staples the DMG.
 7. Rewrites SHA-256 checksum files.
+8. Generates `dist/appcast.xml` for Sparkle automatic updates.
 
 If the keychain profile uses a different name:
 
@@ -61,4 +62,15 @@ codesign --verify --deep --strict --verbose=2 build/Dday.app
 spctl -a -vv build/Dday.app
 xcrun stapler validate build/Dday.app
 xcrun stapler validate dist/Dday-v1.0.1.dmg
+```
+
+## Sparkle appcast
+
+Sparkle update signing uses a separate EdDSA key. The public key is committed in
+`Support/Info.plist`, but the private key must remain in the local Keychain.
+
+If appcast generation is not needed for a temporary notarization run:
+
+```bash
+SKIP_SPARKLE_APPCAST=1 ./scripts/notarize_release.sh v1.0.1
 ```

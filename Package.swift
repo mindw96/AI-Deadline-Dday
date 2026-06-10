@@ -22,6 +22,9 @@ let package = Package(
             targets: ["DdayCoreChecks"]
         )
     ],
+    dependencies: [
+        .package(url: "https://github.com/sparkle-project/Sparkle", from: "2.9.0")
+    ],
     targets: [
         .target(
             name: "DdayCore",
@@ -29,10 +32,19 @@ let package = Package(
         ),
         .executableTarget(
             name: "DdayApp",
-            dependencies: ["DdayCore"],
+            dependencies: [
+                "DdayCore",
+                .product(name: "Sparkle", package: "Sparkle")
+            ],
             path: "Sources/DdayApp",
             resources: [
                 .copy("Resources/conferences.json")
+            ],
+            linkerSettings: [
+                .unsafeFlags([
+                    "-Xlinker", "-rpath",
+                    "-Xlinker", "@executable_path/../Frameworks"
+                ], .when(platforms: [.macOS]))
             ]
         ),
         .executableTarget(

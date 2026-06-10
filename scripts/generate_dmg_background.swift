@@ -37,63 +37,63 @@ let topGradient = NSGradient(colors: [
     NSColor(calibratedRed: 0.36, green: 0.25, blue: 0.98, alpha: 1),
     NSColor(calibratedRed: 0.10, green: 0.58, blue: 0.98, alpha: 1)
 ])!
-let topPath = NSBezierPath(roundedRect: rect(32, 36, 696, 388), xRadius: 34, yRadius: 34)
+let topPath = NSBezierPath(roundedRect: rect(32, 18, 696, 420), xRadius: 34, yRadius: 34)
 topGradient.draw(in: topPath, angle: 0)
 
 NSColor(calibratedWhite: 1, alpha: 0.17).setFill()
-NSBezierPath(roundedRect: rect(74, 78, 612, 306), xRadius: 28, yRadius: 28).fill()
+NSBezierPath(roundedRect: rect(74, 58, 612, 336), xRadius: 28, yRadius: 28).fill()
 
 NSColor(calibratedWhite: 1, alpha: 0.92).setFill()
-NSBezierPath(roundedRect: rect(86, 92, 588, 282), xRadius: 24, yRadius: 24).fill()
+NSBezierPath(roundedRect: rect(86, 74, 588, 308), xRadius: 24, yRadius: 24).fill()
 
 let blue = NSColor(calibratedRed: 0.10, green: 0.43, blue: 0.95, alpha: 1)
 let purple = NSColor(calibratedRed: 0.34, green: 0.25, blue: 0.92, alpha: 1)
 
 drawText(
     "Dday",
-    in: rect(0, 314, canvas.width, 56),
+    in: rect(0, 330, canvas.width, 56),
     font: .systemFont(ofSize: 34, weight: .bold),
     color: NSColor(calibratedWhite: 0.08, alpha: 1)
 )
 drawText(
     "Drag Dday to Applications",
-    in: rect(0, 282, canvas.width, 28),
+    in: rect(0, 298, canvas.width, 28),
     font: .systemFont(ofSize: 18, weight: .semibold),
     color: NSColor(calibratedWhite: 0.22, alpha: 1)
 )
 drawText(
     "AI conference deadlines, one glance away.",
-    in: rect(0, 105, canvas.width, 24),
+    in: rect(0, 91, canvas.width, 24),
     font: .systemFont(ofSize: 14, weight: .medium),
     color: NSColor(calibratedWhite: 0.42, alpha: 1)
 )
 
 let arrow = NSBezierPath()
-arrow.move(to: NSPoint(x: 300, y: 230))
-arrow.line(to: NSPoint(x: 460, y: 230))
+arrow.move(to: NSPoint(x: 300, y: 248))
+arrow.line(to: NSPoint(x: 460, y: 248))
 arrow.lineWidth = 5
 arrow.lineCapStyle = .round
 blue.withAlphaComponent(0.72).setStroke()
 arrow.stroke()
 
 let head = NSBezierPath()
-head.move(to: NSPoint(x: 460, y: 230))
-head.line(to: NSPoint(x: 438, y: 245))
-head.move(to: NSPoint(x: 460, y: 230))
-head.line(to: NSPoint(x: 438, y: 215))
+head.move(to: NSPoint(x: 460, y: 248))
+head.line(to: NSPoint(x: 438, y: 263))
+head.move(to: NSPoint(x: 460, y: 248))
+head.line(to: NSPoint(x: 438, y: 233))
 head.lineWidth = 5
 head.lineCapStyle = .round
 blue.withAlphaComponent(0.72).setStroke()
 head.stroke()
 
-let leftCircle = NSBezierPath(ovalIn: rect(132, 186, 126, 126))
+let leftCircle = NSBezierPath(ovalIn: rect(132, 204, 126, 126))
 NSColor(calibratedWhite: 1, alpha: 0.86).setFill()
 leftCircle.fill()
 purple.withAlphaComponent(0.12).setStroke()
 leftCircle.lineWidth = 2
 leftCircle.stroke()
 
-let rightCircle = NSBezierPath(ovalIn: rect(502, 186, 126, 126))
+let rightCircle = NSBezierPath(ovalIn: rect(502, 204, 126, 126))
 NSColor(calibratedWhite: 1, alpha: 0.86).setFill()
 rightCircle.fill()
 blue.withAlphaComponent(0.12).setStroke()
@@ -102,13 +102,13 @@ rightCircle.stroke()
 
 drawText(
     "1",
-    in: rect(132, 213, 126, 54),
+    in: rect(132, 231, 126, 54),
     font: .systemFont(ofSize: 46, weight: .heavy),
     color: purple.withAlphaComponent(0.24)
 )
 drawText(
     "2",
-    in: rect(502, 213, 126, 54),
+    in: rect(502, 231, 126, 54),
     font: .systemFont(ofSize: 46, weight: .heavy),
     color: blue.withAlphaComponent(0.24)
 )

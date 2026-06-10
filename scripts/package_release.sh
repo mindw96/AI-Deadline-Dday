@@ -79,8 +79,8 @@ osascript \
   -e 'set arrangement of theOptions to not arranged' \
   -e 'set icon size of theOptions to 112' \
   -e 'set background picture of theOptions to file ".background:dmg-background.png" of dmgFolder' \
-  -e 'set position of item "Dday.app" of dmgFolder to {190, 248}' \
-  -e 'set position of item "Applications" of dmgFolder to {570, 248}' \
+  -e 'set position of item "Dday.app" of dmgFolder to {190, 222}' \
+  -e 'set position of item "Applications" of dmgFolder to {570, 222}' \
   -e 'end tell' >/dev/null
 osascript \
   -e "set dmgFolder to POSIX file \"$MOUNT_DIR\" as alias" \
