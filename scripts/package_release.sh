@@ -104,10 +104,16 @@ osascript \
   -e 'set background picture of theOptions to file ".background:dmg-background.png" of dmgFolder' \
   -e 'set position of item "Dday.app" of dmgFolder to {190, 222}' \
   -e 'set position of item "Applications" of dmgFolder to {570, 222}' \
+  -e 'update dmgFolder' \
   -e 'end tell' >/dev/null
 osascript \
   -e "set dmgFolder to POSIX file \"$MOUNT_DIR\" as alias" \
-  -e 'tell application "Finder" to close container window of dmgFolder' >/dev/null || true
+  -e 'tell application "Finder"' \
+  -e 'set theWindow to container window of dmgFolder' \
+  -e 'close theWindow' \
+  -e 'end tell' >/dev/null
+
+sleep 1
 
 for _ in {1..20}; do
   [[ -f "$MOUNT_DIR/.DS_Store" ]] && break
@@ -116,6 +122,11 @@ done
 
 if [[ ! -f "$MOUNT_DIR/.DS_Store" ]]; then
   echo "Finder did not write .DS_Store for the DMG layout." >&2
+  exit 67
+fi
+
+if ! strings "$MOUNT_DIR/.DS_Store" | grep -Fq "dmg-background.png"; then
+  echo "Finder did not persist the DMG background image setting." >&2
   exit 67
 fi
 
