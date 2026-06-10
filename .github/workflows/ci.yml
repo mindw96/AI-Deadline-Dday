@@ -23,7 +23,9 @@ jobs:
         run: swift --version
 
       - name: Run core checks
-        run: swift run DdayCoreChecks
+        run: |
+          swift build --product DdayCoreChecks
+          .build/debug/DdayCoreChecks
 
       - name: Build Swift package
         run: swift build

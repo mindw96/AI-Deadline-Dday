@@ -56,7 +56,9 @@ jobs:
 
       - name: Run core checks
         if: steps.existing_release.outputs.exists != 'true'
-        run: swift run DdayCoreChecks
+        run: |
+          swift build --product DdayCoreChecks
+          .build/debug/DdayCoreChecks
 
       - name: Build app bundle
         if: steps.existing_release.outputs.exists != 'true'
