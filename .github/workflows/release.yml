@@ -75,6 +75,11 @@ jobs:
           RELEASE_TAG: ${{ steps.release_tag.outputs.tag }}
         run: |
           tag="${RELEASE_TAG}"
+          if gh release view "$tag" >/dev/null 2>&1; then
+            echo "Release $tag already exists; leaving existing assets untouched."
+            exit 0
+          fi
+
           gh release create "$tag" \
             "dist/Dday-${tag}.zip" \
             "dist/Dday-${tag}.zip.sha256" \
