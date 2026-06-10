@@ -87,8 +87,12 @@ osascript \
   -e 'tell application "Finder"' \
   -e 'set theWindow to container window of dmgFolder' \
   -e 'set current view of theWindow to icon view' \
+  -e 'try' \
   -e 'set toolbar visible of theWindow to false' \
+  -e 'end try' \
+  -e 'try' \
   -e 'set statusbar visible of theWindow to false' \
+  -e 'end try' \
   -e 'set bounds of theWindow to {100, 100, 860, 580}' \
   -e 'end tell' >/dev/null
 osascript \
