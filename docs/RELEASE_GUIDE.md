@@ -32,16 +32,16 @@ build script directly.
 ## Notarized GitHub Release
 
 ```bash
-./scripts/notarize_release.sh v1.0.3
+./scripts/notarize_release.sh v1.1.0
 ```
 
 The script creates:
 
 ```text
-dist/Dday-v1.0.3.dmg
-dist/Dday-v1.0.3.dmg.sha256
-dist/Dday-v1.0.3.zip
-dist/Dday-v1.0.3.zip.sha256
+dist/Dday-v1.1.0.dmg
+dist/Dday-v1.1.0.dmg.sha256
+dist/Dday-v1.1.0.zip
+dist/Dday-v1.1.0.zip.sha256
 dist/appcast.xml
 ```
 
@@ -69,12 +69,12 @@ Print the existing public key:
 Regenerate only the appcast for an already-built DMG:
 
 ```bash
-./scripts/generate_sparkle_appcast.sh v1.0.3
+./scripts/generate_sparkle_appcast.sh v1.1.0
 ```
 
 Optional release notes:
 
 ```bash
-SPARKLE_RELEASE_NOTES_FILE=private/release-notes/v1.0.3.md \
-  ./scripts/generate_sparkle_appcast.sh v1.0.3
+SPARKLE_RELEASE_NOTES_FILE=private/release-notes/v1.1.0.md \
+  ./scripts/generate_sparkle_appcast.sh v1.1.0
 ```
