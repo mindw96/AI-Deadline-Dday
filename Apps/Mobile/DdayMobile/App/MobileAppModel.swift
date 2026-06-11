@@ -92,9 +92,7 @@ final class MobileAppModel: ObservableObject {
     }
 
     var upcomingSummaries: [MobileDeadlineSummary] {
-        let conferenceSummaries = store?.conferences
-            .filter { isSubcategorySelected($0.subcategory) }
-            .flatMap(upcomingSummaries(for:)) ?? []
+        let conferenceSummaries = selectedSubcategories.flatMap(upcomingSummaries(in:))
 
         return (conferenceSummaries + customDeadlineSummaries.filter { $0.display.remainingSeconds > 0 })
             .sorted { $0.display.deadlineDate < $1.display.deadlineDate }
@@ -140,24 +138,33 @@ final class MobileAppModel: ObservableObject {
             .sorted { $0.display.deadlineDate < $1.display.deadlineDate }
     }
 
+    func upcomingSummaries(in subcategory: ConferenceSubcategory) -> [MobileDeadlineSummary] {
+        store?.conferences
+            .filter { $0.subcategory == subcategory }
+            .flatMap(upcomingSummaries(for:))
+            .sorted { $0.display.deadlineDate < $1.display.deadlineDate } ?? []
+    }
+
     func isSubcategorySelected(_ subcategory: ConferenceSubcategory) -> Bool {
         selectedSubcategories.contains(subcategory)
     }
 
     func toggleSubcategory(_ subcategory: ConferenceSubcategory) {
-        if selectedSubcategories.contains(subcategory) {
-            guard selectedSubcategories.count > 1 else {
+        var updatedSubcategories = selectedSubcategories
+
+        if updatedSubcategories.contains(subcategory) {
+            guard updatedSubcategories.count > 1 else {
                 return
             }
 
-            selectedSubcategories.removeAll { $0 == subcategory }
+            updatedSubcategories.removeAll { $0 == subcategory }
         } else {
-            selectedSubcategories.append(subcategory)
-            selectedSubcategories = ConferenceSubcategory.allCases.filter {
-                selectedSubcategories.contains($0)
-            }
+            updatedSubcategories.append(subcategory)
         }
 
+        selectedSubcategories = ConferenceSubcategory.allCases.filter {
+            updatedSubcategories.contains($0)
+        }
         saveSelectedSubcategories()
     }
 

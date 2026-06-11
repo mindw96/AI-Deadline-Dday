@@ -80,32 +80,74 @@ private struct UpcomingDeadlinesSection: View {
             Text(model.text.upcoming)
                 .font(.headline)
 
-            ForEach(model.upcomingSummaries.prefix(6)) { summary in
-                Button {
-                    model.select(summary.source)
-                } label: {
-                    HStack {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(summary.title)
-                                .fontWeight(.semibold)
-                            Text(summary.deadlineLabel)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
+            let customSummaries = model.customDeadlineSummaries
+                .filter { $0.display.remainingSeconds > 0 }
+            if !customSummaries.isEmpty {
+                UpcomingDeadlineGroup(
+                    title: model.text.customTitle,
+                    summaries: Array(customSummaries.prefix(3))
+                )
+            }
 
-                        Spacer()
-
-                        Text(summary.display.text)
-                            .font(.headline.monospacedDigit())
-                    }
-                    .contentShape(Rectangle())
+            ForEach(model.selectedSubcategories, id: \.rawValue) { subcategory in
+                let summaries = model.upcomingSummaries(in: subcategory)
+                if !summaries.isEmpty {
+                    UpcomingDeadlineGroup(
+                        title: model.text.subcategoryTitle(subcategory),
+                        summaries: Array(summaries.prefix(4))
+                    )
                 }
-                .buttonStyle(.plain)
-                .padding()
-                .background(Color(.secondarySystemBackground))
-                .clipShape(RoundedRectangle(cornerRadius: 8))
             }
         }
+    }
+}
+
+private struct UpcomingDeadlineGroup: View {
+    let title: String
+    let summaries: [MobileDeadlineSummary]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.subheadline)
+                .fontWeight(.semibold)
+                .foregroundStyle(.secondary)
+
+            ForEach(summaries) { summary in
+                UpcomingDeadlineRow(summary: summary)
+            }
+        }
+    }
+}
+
+private struct UpcomingDeadlineRow: View {
+    @EnvironmentObject private var model: MobileAppModel
+    let summary: MobileDeadlineSummary
+
+    var body: some View {
+        Button {
+            model.select(summary.source)
+        } label: {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(summary.title)
+                        .fontWeight(.semibold)
+                    Text(summary.deadlineLabel)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+
+                Spacer()
+
+                Text(summary.display.text)
+                    .font(.headline.monospacedDigit())
+            }
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .padding()
+        .background(Color(.secondarySystemBackground))
+        .clipShape(RoundedRectangle(cornerRadius: 8))
     }
 }
 
