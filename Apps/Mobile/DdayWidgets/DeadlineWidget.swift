@@ -22,10 +22,11 @@ struct DeadlineWidgetProvider: TimelineProvider {
         in context: Context,
         completion: @escaping (DeadlineWidgetEntry) -> Void
     ) {
+        let now = Date()
         completion(
             DeadlineWidgetEntry(
-                date: Date(),
-                snapshot: store.load() ?? .empty,
+                date: now,
+                snapshot: (store.load() ?? .empty).refreshed(now: now),
                 appearance: store.loadAppearance()
             )
         )
@@ -36,7 +37,7 @@ struct DeadlineWidgetProvider: TimelineProvider {
         completion: @escaping (Timeline<DeadlineWidgetEntry>) -> Void
     ) {
         let now = Date()
-        let snapshot = store.load() ?? .empty
+        let snapshot = (store.load() ?? .empty).refreshed(now: now)
         let entry = DeadlineWidgetEntry(
             date: now,
             snapshot: snapshot,

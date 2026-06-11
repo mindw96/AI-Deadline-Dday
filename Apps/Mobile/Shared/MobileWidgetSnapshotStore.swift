@@ -32,6 +32,52 @@ struct MobileWidgetDeadlineSnapshot: Codable, Equatable, Sendable {
         deadlineDate: Date().addingTimeInterval(60 * 60),
         updatedAt: Date()
     )
+
+    func refreshed(now: Date = Date(), calendar: Calendar = .current) -> MobileWidgetDeadlineSnapshot {
+        guard !sourceDateText.isEmpty else {
+            return self
+        }
+
+        var calendar = calendar
+        calendar.timeZone = .current
+
+        let todayStart = calendar.startOfDay(for: now)
+        let deadlineStart = calendar.startOfDay(for: deadlineDate)
+        let days = calendar.dateComponents([.day], from: todayStart, to: deadlineStart).day ?? 0
+        let remainingSeconds = deadlineDate.timeIntervalSince(now)
+
+        let refreshedText: String
+        if days == 0 && remainingSeconds > 0 {
+            refreshedText = Self.countdownText(for: remainingSeconds)
+        } else if days > 0 {
+            refreshedText = "D-\(days)"
+        } else if days == 0 {
+            refreshedText = "D-Day"
+        } else {
+            refreshedText = "D+\(-days)"
+        }
+
+        return MobileWidgetDeadlineSnapshot(
+            title: title,
+            deadlineText: refreshedText,
+            deadlineLabel: deadlineLabel,
+            localDateText: localDateText,
+            sourceDateText: sourceDateText,
+            deadlineDate: deadlineDate,
+            updatedAt: updatedAt
+        )
+    }
+
+    private static func countdownText(for remainingSeconds: TimeInterval) -> String {
+        let totalMinutes = max(1, Int(ceil(remainingSeconds / 60)))
+
+        if totalMinutes >= 60 {
+            let hours = Int(ceil(Double(totalMinutes) / 60.0))
+            return "H-\(hours)"
+        }
+
+        return "M-\(totalMinutes)"
+    }
 }
 
 enum MobileWidgetBackground: String, CaseIterable, Codable, Sendable {

@@ -9,12 +9,12 @@ struct ConferenceBrowserScreen: View {
             List {
                 ForEach(ConferenceSubcategory.allCases, id: \.rawValue) { subcategory in
                     Button {
-                        model.selectSubcategory(subcategory)
+                        model.toggleSubcategory(subcategory)
                     } label: {
                         HStack {
                             Text(model.text.subcategoryTitle(subcategory))
                             Spacer()
-                            if model.selectedSubcategory == subcategory {
+                            if model.isSubcategorySelected(subcategory) {
                                 Image(systemName: "checkmark")
                                     .foregroundStyle(.tint)
                             }
@@ -25,32 +25,41 @@ struct ConferenceBrowserScreen: View {
             .navigationTitle(model.text.categories)
         } content: {
             List {
-                Section(model.text.upcomingConferences) {
-                    ForEach(model.conferences(in: model.selectedSubcategory)) { conference in
-                        NavigationLink {
-                            ConferenceDetailScreen(conference: conference)
-                        } label: {
-                            ConferenceRow(conference: conference)
+                ForEach(model.selectedSubcategories, id: \.rawValue) { subcategory in
+                    let conferences = model.conferences(in: subcategory)
+                    if !conferences.isEmpty {
+                        Section(model.text.subcategoryTitle(subcategory)) {
+                            ForEach(conferences) { conference in
+                                NavigationLink {
+                                    ConferenceDetailScreen(conference: conference)
+                                } label: {
+                                    ConferenceRow(conference: conference)
+                                }
+                            }
                         }
                     }
-                }
 
-                let pastConferences = model.pastConferences(in: model.selectedSubcategory)
-                if !pastConferences.isEmpty {
-                    Section(model.text.pastConferences) {
-                        ForEach(pastConferences) { conference in
-                            NavigationLink {
-                                ConferenceDetailScreen(conference: conference)
-                            } label: {
-                                ConferenceRow(conference: conference)
+                    let pastConferences = model.pastConferences(in: subcategory)
+                    if !pastConferences.isEmpty {
+                        Section("\(model.text.subcategoryTitle(subcategory)) - \(model.text.pastConferences)") {
+                            ForEach(pastConferences) { conference in
+                                NavigationLink {
+                                    ConferenceDetailScreen(conference: conference)
+                                } label: {
+                                    ConferenceRow(conference: conference)
+                                }
                             }
                         }
                     }
                 }
             }
-            .navigationTitle(model.text.subcategoryTitle(model.selectedSubcategory))
+            .navigationTitle(
+                model.selectedSubcategories.count == 1
+                    ? model.text.subcategoryTitle(model.firstSelectedSubcategory)
+                    : model.text.selectedCategories
+            )
         } detail: {
-            if let conference = model.conferences(in: model.selectedSubcategory).first {
+            if let conference = model.selectedCategoryConferences().first {
                 ConferenceDetailScreen(conference: conference)
             } else {
                 ContentUnavailableView(

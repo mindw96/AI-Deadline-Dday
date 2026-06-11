@@ -33,6 +33,7 @@ struct MobileAppText {
     var conferenceDataUnavailable: String { korean ? "학회 데이터를 불러올 수 없습니다" : "Conference data unavailable" }
 
     var categories: String { korean ? "카테고리" : "Categories" }
+    var selectedCategories: String { korean ? "선택한 카테고리" : "Selected Categories" }
     var deadlines: String { korean ? "마감일" : "Deadlines" }
     var upcomingConferences: String { korean ? "다가오는 학회" : "Upcoming" }
     var pastConferences: String { korean ? "지난 학회" : "Past Conferences" }

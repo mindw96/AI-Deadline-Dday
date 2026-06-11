@@ -11,12 +11,13 @@ final class MobileAppModel: ObservableObject {
         static let selectedDeadlineID = "mobileSelectedDeadlineID"
         static let selectedCustomDeadlineID = "mobileSelectedCustomDeadlineID"
         static let selectedSubcategory = "mobileSelectedSubcategory"
+        static let selectedSubcategories = "mobileSelectedSubcategories"
         static let notificationsEnabled = "mobileNotificationsEnabled"
     }
 
     @Published private(set) var store: ConferenceStore?
     @Published private(set) var errorMessage: String?
-    @Published private(set) var selectedSubcategory: ConferenceSubcategory
+    @Published private(set) var selectedSubcategories: [ConferenceSubcategory]
     @Published private(set) var userDeadlines: [UserDeadline] = []
     @Published private(set) var selectedSource: MobileDeadlineSource?
     @Published private(set) var isUpdatingData = false
@@ -60,7 +61,7 @@ final class MobileAppModel: ObservableObject {
         self.notificationScheduler = notificationScheduler
         self.defaults = defaults
         appLanguage = settingsStore.appLanguage
-        selectedSubcategory = Self.loadSelectedSubcategory(defaults: defaults)
+        selectedSubcategories = Self.loadSelectedSubcategories(defaults: defaults)
         selectedSource = Self.loadSelectedSource(defaults: defaults)
         widgetAppearance = widgetSnapshotStore.loadAppearance()
         notificationsEnabled = defaults.bool(forKey: Key.notificationsEnabled)
@@ -92,7 +93,7 @@ final class MobileAppModel: ObservableObject {
 
     var upcomingSummaries: [MobileDeadlineSummary] {
         let conferenceSummaries = store?.conferences
-            .filter { $0.subcategory == selectedSubcategory }
+            .filter { isSubcategorySelected($0.subcategory) }
             .flatMap(upcomingSummaries(for:)) ?? []
 
         return (conferenceSummaries + customDeadlineSummaries.filter { $0.display.remainingSeconds > 0 })
@@ -123,6 +124,10 @@ final class MobileAppModel: ObservableObject {
             .filter { nextSummary(for: $0) == nil }
     }
 
+    var firstSelectedSubcategory: ConferenceSubcategory {
+        selectedSubcategories.first ?? .ml
+    }
+
     func summary(for conference: Conference) -> MobileDeadlineSummary? {
         nextSummary(for: conference) ?? fallbackSummary(for: conference)
     }
@@ -135,13 +140,43 @@ final class MobileAppModel: ObservableObject {
             .sorted { $0.display.deadlineDate < $1.display.deadlineDate }
     }
 
-    func selectSubcategory(_ subcategory: ConferenceSubcategory) {
-        guard selectedSubcategory != subcategory else {
+    func isSubcategorySelected(_ subcategory: ConferenceSubcategory) -> Bool {
+        selectedSubcategories.contains(subcategory)
+    }
+
+    func toggleSubcategory(_ subcategory: ConferenceSubcategory) {
+        if selectedSubcategories.contains(subcategory) {
+            guard selectedSubcategories.count > 1 else {
+                return
+            }
+
+            selectedSubcategories.removeAll { $0 == subcategory }
+        } else {
+            selectedSubcategories.append(subcategory)
+            selectedSubcategories = ConferenceSubcategory.allCases.filter {
+                selectedSubcategories.contains($0)
+            }
+        }
+
+        saveSelectedSubcategories()
+    }
+
+    func selectedCategoryConferences() -> [Conference] {
+        selectedSubcategories.flatMap { conferences(in: $0) }
+    }
+
+    func selectedCategoryPastConferences() -> [Conference] {
+        selectedSubcategories.flatMap { pastConferences(in: $0) }
+    }
+
+    private func saveSelectedSubcategories() {
+        let rawValues = selectedSubcategories.map(\.rawValue)
+        guard !rawValues.isEmpty else {
             return
         }
 
-        selectedSubcategory = subcategory
-        defaults.set(subcategory.rawValue, forKey: Key.selectedSubcategory)
+        defaults.set(rawValues, forKey: Key.selectedSubcategories)
+        defaults.set(rawValues[0], forKey: Key.selectedSubcategory)
     }
 
     func setWidgetBackground(_ background: MobileWidgetBackground) {
@@ -441,13 +476,20 @@ final class MobileAppModel: ObservableObject {
         }
     }
 
-    private static func loadSelectedSubcategory(defaults: UserDefaults) -> ConferenceSubcategory {
-        guard let rawValue = defaults.string(forKey: Key.selectedSubcategory),
-              let subcategory = ConferenceSubcategory(rawValue: rawValue) else {
-            return .ml
+    private static func loadSelectedSubcategories(defaults: UserDefaults) -> [ConferenceSubcategory] {
+        if let rawValues = defaults.stringArray(forKey: Key.selectedSubcategories) {
+            let selected = ConferenceSubcategory.allCases.filter { rawValues.contains($0.rawValue) }
+            if !selected.isEmpty {
+                return selected
+            }
         }
 
-        return subcategory
+        if let rawValue = defaults.string(forKey: Key.selectedSubcategory),
+           let subcategory = ConferenceSubcategory(rawValue: rawValue) {
+            return [subcategory]
+        }
+
+        return [.ml]
     }
 
     private static let dateFormatter: DateFormatter = {
