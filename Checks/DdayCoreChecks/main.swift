@@ -12,6 +12,7 @@ enum DdayCoreChecks {
         try checkAoEDeadlineUsesLocalDisplayTimezone()
         try checkLoadsConferenceJSON()
         try checkLoadsConferenceJSONFromData()
+        try checkUnknownConferenceDataValuesUseFallbacks()
         try checkConferenceDataUpdaterFallsBackWhenCacheIsInvalid()
         try checkLoadsProjectConferenceData()
 
@@ -199,6 +200,43 @@ enum DdayCoreChecks {
 
         try expect(store.conferences.count == 1, "expected one fixture conference from data")
         try expect(store.conferences.first?.id == "testconf-2026", "unexpected conference id from data")
+    }
+
+    private static func checkUnknownConferenceDataValuesUseFallbacks() throws {
+        let json = """
+        [
+          {
+            "id": "futureconf-2026",
+            "name": "FutureConf",
+            "fullName": "Future Conference",
+            "year": 2026,
+            "field": ["testing"],
+            "subcategory": "future-category",
+            "location": "Online",
+            "websiteUrl": "https://example.com/futureconf",
+            "sourceUrl": "https://example.com/futureconf/cfp",
+            "sourceCheckedAt": "2026-06-12",
+            "timezone": "AoE",
+            "deadlines": [
+              {
+                "id": "full-paper",
+                "label": "Full Paper Submission",
+                "date": "2026-06-01",
+                "time": "23:59",
+                "timezone": "AoE",
+                "type": "future-kind",
+                "isPrimary": true
+              }
+            ]
+          }
+        ]
+        """
+        let store = try ConferenceStore.load(from: Data(json.utf8))
+        let conference = try require(store.conferences.first)
+        let deadline = try require(conference.primaryDeadline)
+
+        try expect(conference.subcategory == .generalAI, "unknown subcategory should fallback to General AI")
+        try expect(deadline.type == .submission, "unknown deadline type should fallback to submission")
     }
 
     private static func checkConferenceDataUpdaterFallsBackWhenCacheIsInvalid() throws {

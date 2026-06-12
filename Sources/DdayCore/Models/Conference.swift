@@ -48,6 +48,17 @@ public enum ConferenceSubcategory: String, Codable, Equatable, CaseIterable, Sen
     case cv
     case nlp
     case generalAI = "general-ai"
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        self = ConferenceSubcategory(rawValue: rawValue) ?? .generalAI
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.singleValueContainer()
+        try container.encode(rawValue)
+    }
 }
 
 public extension Conference {
