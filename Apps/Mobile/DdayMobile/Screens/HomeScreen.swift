@@ -85,7 +85,7 @@ private struct UpcomingDeadlinesSection: View {
             if !customSummaries.isEmpty {
                 UpcomingDeadlineGroup(
                     title: model.text.customTitle,
-                    summaries: Array(customSummaries.prefix(3))
+                    summaries: customSummaries
                 )
             }
 
@@ -94,7 +94,7 @@ private struct UpcomingDeadlinesSection: View {
                 if !summaries.isEmpty {
                     UpcomingDeadlineGroup(
                         title: model.text.subcategoryTitle(subcategory),
-                        summaries: Array(summaries.prefix(4))
+                        summaries: summaries
                     )
                 }
             }
