@@ -1,4 +1,4 @@
-name: Release
+name: Release Validation
 
 on:
   push:
@@ -7,16 +7,16 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: "Existing tag to release, for example v0.1.1"
+        description: "Existing tag to validate, for example v1.1.1"
         required: true
         type: string
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  release:
-    name: Build and publish release
+  validate:
+    name: Validate release source
     runs-on: macos-latest
 
     steps:
@@ -31,63 +31,35 @@ jobs:
             echo "tag=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Check for existing release
-        id: existing_release
-        env:
-          GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ steps.release_tag.outputs.tag }}
-        run: |
-          if gh release view "$RELEASE_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "exists=true" >> "$GITHUB_OUTPUT"
-            echo "Release $RELEASE_TAG already exists; skipping automated packaging."
-          else
-            echo "exists=false" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Check out repository
-        if: steps.existing_release.outputs.exists != 'true'
         uses: actions/checkout@v6
         with:
           ref: ${{ steps.release_tag.outputs.tag }}
 
       - name: Show Swift version
-        if: steps.existing_release.outputs.exists != 'true'
         run: swift --version
 
       - name: Run core checks
-        if: steps.existing_release.outputs.exists != 'true'
         run: |
           swift build --product DdayCoreChecks
           .build/debug/DdayCoreChecks
 
-      - name: Build app bundle
-        if: steps.existing_release.outputs.exists != 'true'
-        run: ./scripts/build_app.sh
-
-      - name: Package app
-        if: steps.existing_release.outputs.exists != 'true'
+      - name: Build app bundle without publishing
         env:
-          RELEASE_TAG: ${{ steps.release_tag.outputs.tag }}
-        run: ./scripts/package_release.sh "${RELEASE_TAG}"
-
-      - name: Publish GitHub Release
-        if: steps.existing_release.outputs.exists != 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ steps.release_tag.outputs.tag }}
         run: |
-          tag="${RELEASE_TAG}"
-          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "Release $tag already exists; leaving existing assets untouched."
-            exit 0
+          version="${RELEASE_TAG#v}"
+          APP_VERSION="$version" ./scripts/build_app.sh
+
+      - name: Validate app Info.plist
+        env:
+          RELEASE_TAG: ${{ steps.release_tag.outputs.tag }}
+        run: |
+          version="${RELEASE_TAG#v}"
+          actual="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' build/Dday.app/Contents/Info.plist)"
+          if [ "$actual" != "$version" ]; then
+            echo "Expected CFBundleShortVersionString $version, got $actual" >&2
+            exit 1
           fi
 
-          gh release create "$tag" \
-            "dist/Dday-${tag}.zip" \
-            "dist/Dday-${tag}.zip.sha256" \
-            "dist/Dday-${tag}.dmg" \
-            "dist/Dday-${tag}.dmg.sha256" \
-            --title "Dday ${tag}" \
-            --generate-notes \
-            --repo "$GITHUB_REPOSITORY" \
-            --verify-tag
+          plutil -lint build/Dday.app/Contents/Info.plist

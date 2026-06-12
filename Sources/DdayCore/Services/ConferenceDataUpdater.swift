@@ -1,8 +1,10 @@
 import Foundation
 
 public struct ConferenceDataUpdater: @unchecked Sendable {
+    public static let maxRemoteDataSize = 5 * 1024 * 1024
+
     public static let defaultRemoteURL = URL(
-        string: "https://raw.githubusercontent.com/mindw96/AI-Deadline-Dday/main/data/conferences.json"
+        string: "https://raw.githubusercontent.com/mindw96/AI-Conference-Dday/main/data/conferences.json"
     )!
 
     public let remoteURL: URL
@@ -35,9 +37,20 @@ public struct ConferenceDataUpdater: @unchecked Sendable {
     public func fetchAndCacheLatest() async throws -> ConferenceStore {
         let (data, response) = try await URLSession.shared.data(from: remoteURL)
 
-        if let httpResponse = response as? HTTPURLResponse,
-           !(200..<300).contains(httpResponse.statusCode) {
-            throw ConferenceDataUpdateError.badStatusCode(httpResponse.statusCode)
+        if let httpResponse = response as? HTTPURLResponse {
+            if !(200..<300).contains(httpResponse.statusCode) {
+                throw ConferenceDataUpdateError.badStatusCode(httpResponse.statusCode)
+            }
+
+            if let contentLength = httpResponse.value(forHTTPHeaderField: "Content-Length"),
+               let size = Int(contentLength),
+               size > Self.maxRemoteDataSize {
+                throw ConferenceDataUpdateError.responseTooLarge(size)
+            }
+        }
+
+        if data.count > Self.maxRemoteDataSize {
+            throw ConferenceDataUpdateError.responseTooLarge(data.count)
         }
 
         let store = try ConferenceStore.load(from: data)
@@ -69,11 +82,14 @@ public struct ConferenceDataUpdater: @unchecked Sendable {
 
 public enum ConferenceDataUpdateError: LocalizedError, Equatable {
     case badStatusCode(Int)
+    case responseTooLarge(Int)
 
     public var errorDescription: String? {
         switch self {
         case .badStatusCode(let statusCode):
             return "Conference data request failed with HTTP \(statusCode)."
+        case .responseTooLarge(let size):
+            return "Conference data response is too large (\(size) bytes)."
         }
     }
 }

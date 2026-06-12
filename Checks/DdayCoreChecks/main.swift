@@ -8,8 +8,11 @@ enum DdayCoreChecks {
         try checkSameLocalDeadlineDayUsesHourCountdown()
         try checkSameLocalDeadlineDayUsesMinuteCountdown()
         try checkPastDeadlineUsesDPlusFormat()
+        try checkInvalidDeadlineDateIsRejected()
+        try checkInvalidDeadlineTimeIsRejected()
         try checkAoEMapsToUTCMinusTwelve()
         try checkAoEDeadlineUsesLocalDisplayTimezone()
+        try checkDefaultConferenceDataURLUsesCurrentRepository()
         try checkLoadsConferenceJSON()
         try checkLoadsConferenceJSONFromData()
         try checkUnknownConferenceDataValuesUseFallbacks()
@@ -152,6 +155,44 @@ enum DdayCoreChecks {
         try expect(display.days == -7, "expected -7 days, got \(display.days)")
     }
 
+    private static func checkInvalidDeadlineDateIsRejected() throws {
+        let deadline = ConferenceDeadline(
+            id: "paper",
+            label: "Paper Deadline",
+            date: "2026-13-01",
+            time: "23:59",
+            timezone: "UTC",
+            type: .submission,
+            isPrimary: true
+        )
+
+        do {
+            _ = try DeadlineCalculator().date(for: deadline)
+            throw CheckError("invalid date should be rejected")
+        } catch DeadlineCalculationError.invalidDate {
+            return
+        }
+    }
+
+    private static func checkInvalidDeadlineTimeIsRejected() throws {
+        let deadline = ConferenceDeadline(
+            id: "paper",
+            label: "Paper Deadline",
+            date: "2026-05-27",
+            time: "25:99",
+            timezone: "UTC",
+            type: .submission,
+            isPrimary: true
+        )
+
+        do {
+            _ = try DeadlineCalculator().date(for: deadline)
+            throw CheckError("invalid time should be rejected")
+        } catch DeadlineCalculationError.invalidTime {
+            return
+        }
+    }
+
     private static func checkAoEMapsToUTCMinusTwelve() throws {
         let timezone = DeadlineCalculator().resolvedTimeZone("AoE")
 
@@ -181,6 +222,14 @@ enum DdayCoreChecks {
         )
 
         try expect(display.text == "D-1", "expected D-1 in Asia/Seoul, got \(display.text)")
+    }
+
+    private static func checkDefaultConferenceDataURLUsesCurrentRepository() throws {
+        try expect(
+            ConferenceDataUpdater.defaultRemoteURL.absoluteString
+                == "https://raw.githubusercontent.com/mindw96/AI-Conference-Dday/main/data/conferences.json",
+            "default conference data URL must use the current repository name"
+        )
     }
 
     private static func checkLoadsConferenceJSON() throws {
@@ -310,6 +359,97 @@ enum DdayCoreChecks {
             store.conferences.contains { $0.id == "kr-2026" && $0.subcategory == .generalAI },
             "expected KR 2026 in General AI subcategory"
         )
+
+        try checkProjectConferenceDataUsesStableFeedSchema(url: url)
+    }
+
+    private static func checkProjectConferenceDataUsesStableFeedSchema(url: URL) throws {
+        let data = try Data(contentsOf: url)
+        let raw = try JSONSerialization.jsonObject(with: data)
+        guard let conferences = raw as? [[String: Any]] else {
+            throw CheckError("project conference data must be a JSON array of objects")
+        }
+
+        let allowedSubcategories = Set(ConferenceSubcategory.allCases.map(\.rawValue))
+        let allowedDeadlineKinds: Set<String> = [
+            "abstract",
+            "submission",
+            "supplementary",
+            "notification",
+            "camera-ready",
+            "conference-start",
+            "conference-end"
+        ]
+        var conferenceIDs = Set<String>()
+
+        for conference in conferences {
+            let id = try require(conference["id"] as? String)
+            try expect(conferenceIDs.insert(id).inserted, "duplicate conference id: \(id)")
+
+            let subcategory = try require(conference["subcategory"] as? String)
+            try expect(
+                allowedSubcategories.contains(subcategory),
+                "unknown conference subcategory in published feed: \(subcategory)"
+            )
+
+            try expectWebURL(conference["websiteUrl"] as? String, field: "\(id).websiteUrl")
+            try expectWebURL(conference["sourceUrl"] as? String, field: "\(id).sourceUrl")
+            try expectValidDate(conference["sourceCheckedAt"] as? String, field: "\(id).sourceCheckedAt")
+
+            guard let deadlines = conference["deadlines"] as? [[String: Any]], !deadlines.isEmpty else {
+                throw CheckError("conference \(id) must have at least one deadline")
+            }
+
+            var deadlineIDs = Set<String>()
+            for deadline in deadlines {
+                let deadlineID = try require(deadline["id"] as? String)
+                try expect(deadlineIDs.insert(deadlineID).inserted, "duplicate deadline id: \(id).\(deadlineID)")
+
+                let kind = try require(deadline["type"] as? String)
+                try expect(allowedDeadlineKinds.contains(kind), "unknown deadline type in published feed: \(kind)")
+                try expectValidDate(deadline["date"] as? String, field: "\(id).\(deadlineID).date")
+
+                if let time = deadline["time"] as? String {
+                    try expectValidTime(time, field: "\(id).\(deadlineID).time")
+                }
+            }
+        }
+    }
+
+    private static func expectWebURL(_ value: String?, field: String) throws {
+        let urlString = try require(value)
+        let url = try require(URL(string: urlString))
+
+        try expect(url.scheme?.lowercased() == "https", "\(field) must be https")
+    }
+
+    private static func expectValidDate(_ value: String?, field: String) throws {
+        let date = try require(value)
+        let parts = date.split(separator: "-").compactMap { Int($0) }
+        guard parts.count == 3 else {
+            throw CheckError("\(field) must use yyyy-mm-dd")
+        }
+
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = TimeZone(secondsFromGMT: 0)!
+
+        var components = DateComponents()
+        components.calendar = calendar
+        components.timeZone = calendar.timeZone
+        components.year = parts[0]
+        components.month = parts[1]
+        components.day = parts[2]
+
+        try expect(components.isValidDate(in: calendar), "\(field) must be a valid date")
+    }
+
+    private static func expectValidTime(_ value: String, field: String) throws {
+        let parts = value.split(separator: ":").compactMap { Int($0) }
+        guard parts.count == 2 else {
+            throw CheckError("\(field) must use HH:mm")
+        }
+
+        try expect((0...23).contains(parts[0]) && (0...59).contains(parts[1]), "\(field) must be a valid time")
     }
 
     private static func expect(

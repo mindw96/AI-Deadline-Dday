@@ -64,14 +64,16 @@ final class MenuBarController: NSObject {
     }
 
     private func startTimer() {
-        refreshTimer = Timer.scheduledTimer(
-            withTimeInterval: 60,
+        let timer = Timer(
+            timeInterval: 60,
             repeats: true
         ) { [weak self] _ in
             Task { @MainActor in
                 self?.refresh()
             }
         }
+        RunLoop.main.add(timer, forMode: .common)
+        refreshTimer = timer
     }
 
     private func refresh() {
@@ -695,7 +697,8 @@ final class MenuBarController: NSObject {
     }
 
     @objc private func openConferenceWebsite() {
-        guard let lastSelectedWebsiteURL else {
+        guard let lastSelectedWebsiteURL,
+              lastSelectedWebsiteURL.isWebURL else {
             return
         }
 

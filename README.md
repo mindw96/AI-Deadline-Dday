@@ -37,6 +37,8 @@ deadline you care about most.
 - iPhone and iPad: distributed through the App Store.
 - macOS: distributed through signed and notarized GitHub Releases.
 
+Current macOS releases require Apple Silicon.
+
 Download the macOS app from the
 [latest GitHub Release](https://github.com/mindw96/AI-Conference-Dday/releases/latest).
 

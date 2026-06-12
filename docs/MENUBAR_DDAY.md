@@ -32,6 +32,7 @@ opening a full calendar app.
 4. Launch `Dday.app`.
 
 Current public macOS builds are Developer ID signed and notarized.
+They currently require Apple Silicon.
 
 ## Local Build
 

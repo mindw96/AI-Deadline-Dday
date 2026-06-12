@@ -36,6 +36,8 @@ Mac에서는 상단바에 선택한 D-Day를 계속 띄우고, iPhone과 iPad에
 - iPhone/iPad: App Store를 통해 배포합니다.
 - macOS: 서명 및 공증된 GitHub Release로 배포합니다.
 
+현재 macOS 릴리즈는 Apple Silicon Mac에서 실행됩니다.
+
 macOS 앱은
 [최신 GitHub Release](https://github.com/mindw96/AI-Conference-Dday/releases/latest)에서 받을 수 있습니다.
 

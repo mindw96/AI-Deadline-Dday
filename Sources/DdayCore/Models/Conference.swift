@@ -70,3 +70,13 @@ public extension Conference {
         deadlines.first { $0.id == id }
     }
 }
+
+public extension URL {
+    var isWebURL: Bool {
+        guard let scheme = scheme?.lowercased() else {
+            return false
+        }
+
+        return scheme == "https" || scheme == "http"
+    }
+}

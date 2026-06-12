@@ -144,8 +144,12 @@ private struct ConferenceDetailScreen: View {
             }
 
             Section {
-                Link(model.text.openConferenceWebsite, destination: conference.websiteUrl)
-                Link(model.text.openSourcePage, destination: conference.sourceUrl)
+                if conference.websiteUrl.isWebURL {
+                    Link(model.text.openConferenceWebsite, destination: conference.websiteUrl)
+                }
+                if conference.sourceUrl.isWebURL {
+                    Link(model.text.openSourcePage, destination: conference.sourceUrl)
+                }
             }
         }
         .navigationTitle(conference.name)

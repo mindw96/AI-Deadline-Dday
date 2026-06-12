@@ -91,8 +91,15 @@ public struct DeadlineCalculator: Sendable {
             minute = timeParts[1]
         }
 
+        guard (0...23).contains(hour), (0...59).contains(minute) else {
+            throw DeadlineCalculationError.invalidTime(deadline.time ?? "\(hour):\(minute)")
+        }
+
+        var calendar = Calendar(identifier: .gregorian)
+        calendar.timeZone = timezone
+
         var components = DateComponents()
-        components.calendar = Calendar(identifier: .gregorian)
+        components.calendar = calendar
         components.timeZone = timezone
         components.year = dateParts[0]
         components.month = dateParts[1]
@@ -101,7 +108,8 @@ public struct DeadlineCalculator: Sendable {
         components.minute = minute
         components.second = 0
 
-        guard let date = components.date else {
+        guard components.isValidDate(in: calendar),
+              let date = components.date else {
             throw DeadlineCalculationError.invalidDate(deadline.date)
         }
 
